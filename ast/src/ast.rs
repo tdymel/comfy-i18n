@@ -12,31 +12,9 @@ use crate::{
 
 // TODO: Tests
 /*
-// TODO: Support Maps
-- Under the hood a const function will be generated field(enum: A::B)
-- Validation: If wildcard doesnt exist it wont compile unless all options are provided.
-- Type: fn(A) -> B, where A and B can be anything static
-  - Future: One might think about a non const variant: match A::B -> Res { ... }
-
-field: match A::B {
-    A => "Lorem",
-    B => "Ipsum"
-    _ => "Wildcard"
-}
-field: match i32 {
-    1..5   => "Lorem",
-    10..15 => "Ipsum"
-    _ => "Wildcard"
-}
-
-// This option is equivalent to a struct, so lets discard it.
-field: match ? {
-    A => "Lorem",
-    B => "Ipsum"
-    _ => "Wildcard"
-}
 
 // TODO: Support Args for Fn Args
+// TODO: Parse Format Strings properly
 
 */
 

@@ -24,22 +24,6 @@ It translates your i18n sources to usable structures in your source code. These 
 ✅ **Extendable:** Build your own I18n-Library on top of comfy-i18n.  
 ✅ **Fallback:** If a translation is missing it tries to use the next best one.  
 
-## Planned Features
-🚧 Other source formats: This 20y old format, JSON, YAML, TOML etc.  
-🚧 Remote translations  
-🚧 Integrate ICU for helper functions: time, pluralizations etc.  
-🚧 t! Macro and runtime access by path support  
-🚧 Map support  
-🚧 Validation  
-🚧 Const folding for self.a and self.a() and self.b(123, self.a, ...)  
-🚧 Generation  
-🚧 CI/CD  
-🚧 Deployment process  
-🚧 Badges in Readme  
-🚧 Documentation  
-🚧 no_std feature  
-🚧 Smart Cache feature  
-
 ## Example
 ```toml
 [dependencies]
@@ -73,4 +57,4 @@ Nevertheless, the binary size and compile time would be bigger compared to a dic
 > ² We use [dfmt](https://github.com/tdymel/dfmt). If we can use a literal template, it uses `format!` under the hood. In addition to this, we do const folding during transpilation and once statically during runtime, to reduce the amount of arguments.
 
 ## License
-MIT - By contributing to this project you accept that any contributions are licensed under MIT as well.
+This project is dual licensed under the Apache 2.0 license and the MIT license.
