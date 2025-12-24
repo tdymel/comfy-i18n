@@ -1,8 +1,4 @@
 # ☕ Comfy I18n
-
-> 🚀 Let's get ~~shit~~ i18n done!
-
-## Goals
 ✅ Ergonomical and intuitive API  
 ✅ Easy to use  
 ✅ Easy to extend  
