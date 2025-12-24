@@ -33,10 +33,10 @@ Comfy I18n trades speed for binary size and compile time.
 It creates specialized structures and functions, which may or may not be optimized away by the compiler.  
 Nevertheless, the binary size and compile time would be bigger compared to a dictionary based approach.
 
-| Crate      | Parsing          | Literal  | Interpolation (2 args) | Interpolation (7 args) |
-| ---------- |----------------- | -------- | ---------------------- | ---------------------- |
-| comfy-i18n | 1.3 ms ¹         | 0.26 ns  | < 38 - 60 ns ²         | < 173 ns ²             |
-| rust-i18n  | Unknown          | 32.63 ns | 128.70 ns              | 370.28 ns              |
+| Crate      | Literal  | Interpolation (2 args) | Interpolation (7 args) |
+| ---------- | -------- | ---------------------- | ---------------------- |
+| comfy-i18n | 0.26 ns  | < 38 - 60 ns ²         | < 173 ns ²             |
+| rust-i18n  | 32.63 ns | 128.70 ns              | 370.28 ns              |
 
 > ¹ For an average size structure  
 > ² We use [dfmt](https://github.com/tdymel/dfmt). If we can use a literal template, it uses `format!` under the hood. In addition to this, we do const folding during transpilation and once statically during runtime, to reduce the amount of arguments.
