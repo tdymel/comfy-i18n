@@ -1,0 +1,20 @@
+[package]
+name = "comfy-i18n-parser"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+comfy-i18n-ast = { path = "./../ast" }
+proc-macro2 = "1"
+quote = "1"
+syn = "2"
+regex = "1"
+thiserror = "2"
+
+[dev-dependencies]
+paste = "1"
+criterion = "0.7"
+
+[[bench]]
+name = "comfy"
+harness = false

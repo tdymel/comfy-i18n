@@ -1,0 +1,12 @@
+[workspace]
+resolver = "3"
+members = [
+    "ast",
+    "context",
+    "generator",
+    "lib",
+    "macro",
+    "optimizer",
+    "parser",
+    "validator",
+]
