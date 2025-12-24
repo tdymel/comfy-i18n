@@ -102,6 +102,9 @@ checksum = "a1d728cc89cf3aee9ff92b05e62b19ee65a02b5702cff7d5a377e32c6ae29d8d"
 [[package]]
 name = "comfy-i18n"
 version = "0.1.0"
+dependencies = [
+ "dfmt",
+]
 
 [[package]]
 name = "comfy-i18n-ast"
@@ -124,6 +127,7 @@ version = "0.1.0"
 dependencies = [
  "comfy-i18n-ast",
  "comfy-i18n-context",
+ "dfmt",
  "proc-macro2",
  "quote",
 ]
@@ -217,6 +221,12 @@ name = "crunchy"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
+
+[[package]]
+name = "dfmt"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28d2361a801d2a130f1c9aa3c66283c96ddf03e69767be3f8782a0ae33d5a96b"
 
 [[package]]
 name = "either"

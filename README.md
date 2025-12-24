@@ -66,10 +66,11 @@ Nevertheless, the binary size and compile time would be bigger compared to a dic
 
 | Crate      | Parsing          | Literal  | Interpolation (2 args) | Interpolation (7 args) |
 | ---------- |----------------- | -------- | ---------------------- | ---------------------- |
-| comfy-i18n | 1.3 ms ¹         | 0.26 ns  | 38.32 ns               | 189.08 ns              |
+| comfy-i18n | 1.3 ms ¹         | 0.26 ns  | < 38 - 60 ns ²         | < 173 ns ²             |
 | rust-i18n  | Unknown          | 32.63 ns | 128.70 ns              | 370.28 ns              |
 
 > ¹ For an average size structure
+> ² We use [dfmt](https://github.com/tdymel/dfmt). If we can use a literal template, it uses `format!` under the hood. In addition to this, we do const folding during transpilation and once statically during runtime, to reduce the amount of arguments.
 
 ## License
 MIT - By contributing to this project you accept that any contributions are licensed under MIT as well.

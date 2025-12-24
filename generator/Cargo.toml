@@ -8,3 +8,4 @@ comfy-i18n-ast = { path = "./../ast" }
 comfy-i18n-context = { path = "./../context" }
 proc-macro2 = "1"
 quote = "1"
+dfmt = "0.3"
