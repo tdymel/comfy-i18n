@@ -13,7 +13,7 @@ It translates your i18n sources to usable structures in your source code. These 
 
 ## Core Features
 ✅ **Ergonomical and intuitive API**  
-✅ **Blazingly fast**
+✅ **Blazingly fast**  
 ✅ **Type safe and const:** Benefit from real structures with literals. No run-time shenanigans! **Enjoy the full benefits of static code analysis.**  
 ✅ **Compile time validation:** Be warned if there are missing translations.  
 ✅ **std::fmt like syntax and const folding:** `"{self.hello} {world}"` -> `(world) -> "Hello {world}"`  
@@ -35,11 +35,10 @@ Nevertheless, the binary size and compile time would be bigger compared to a dic
 
 | Crate      | Literal  | Interpolation (2 args) | Interpolation (7 args) |
 | ---------- | -------- | ---------------------- | ---------------------- |
-| comfy-i18n | 0.26 ns  | < 38 - 60 ns ²         | < 173 ns ²             |
+| comfy-i18n | 0.26 ns  | < 38 - 60 ns ¹         | < 173 ns ¹             |
 | rust-i18n  | 32.63 ns | 128.70 ns              | 370.28 ns              |
 
-> ¹ For an average size structure  
-> ² We use [dfmt](https://github.com/tdymel/dfmt). If we can use a literal template, it uses `format!` under the hood. In addition to this, we do const folding during transpilation and once statically during runtime, to reduce the amount of arguments.
+> ¹ We use [dfmt](https://github.com/tdymel/dfmt). If we can use a literal template, it uses `format!` under the hood. In addition to this, we do const folding during transpilation and once statically during runtime, to reduce the amount of arguments.
 
 ## License
 This project is dual licensed under the Apache 2.0 license and the MIT license.
