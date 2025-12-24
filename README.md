@@ -1,8 +1,8 @@
 # ☕ Comfy I18n
-✅ Ergonomical and intuitive API  
-✅ Easy to use  
-✅ Easy to extend  
-✅ Blazingly fast
+```rust
+// TODO Add example here!
+// TODO: Example: En vs. Passive aggrassive En => "Reason" vs. "Whats your lame excuse, this time? 🤨"
+```
 
 ## Concept
 Comfy I18n aims to be a source format and target language agnostic transpiler. Currently, only **rust** is implemented.
@@ -10,6 +10,8 @@ Comfy I18n aims to be a source format and target language agnostic transpiler. C
 It translates your i18n sources to usable structures in your source code. These structures are **component based** by design and are as such **nested** and **composable**.
 
 ## Core Features
+✅ **Ergonomical and intuitive API**  
+✅ **Blazingly fast**
 ✅ **Type safe and const:** Benefit from real structures with literals. No run-time shenanigans! **Enjoy the full benefits of static code analysis.**  
 ✅ **Compile time validation:** Be warned if there are missing translations.  
 ✅ **std::fmt like syntax and const folding:** `"{self.hello} {world}"` -> `(world) -> "Hello {world}"`  
@@ -19,21 +21,6 @@ It translates your i18n sources to usable structures in your source code. These 
 ✅ **Composable:** Reuse localizations in a type safe manner.  
 ✅ **Extendable:** Build your own I18n-Library on top of comfy-i18n.  
 ✅ **Fallback:** If a translation is missing it tries to use the next best one.  
-
-## Example
-```toml
-[dependencies]
-comfy-i18n = "0.1"
-```
-
-```rust,ignore
-TODO
-```
-> TODO: Example: En vs. Passive aggrassive En => "Reason" vs. "Whats your lame excuse, this time? 🤨"
-
-> TODO: Examples project. Refer to it. Plus put it into the documentation with playgrounds.
-
-> TODO EXAMPLE and Playgrounds!
 
 ## But is it blazingly fast?!
 TODO: Redo Benchmarks!
