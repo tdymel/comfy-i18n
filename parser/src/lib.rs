@@ -1,5 +1,5 @@
-mod error;
 mod comfy;
+mod error;
 
 use comfy_i18n_ast::{NodeValue, SpannedAst};
 use proc_macro2::Span;

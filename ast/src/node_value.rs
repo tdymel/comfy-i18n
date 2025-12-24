@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::identifier::Identifier;
+use crate::{identifier::Identifier, template::Template};
 
 #[derive(Debug, Clone)]
 pub enum CompositeValue {
@@ -86,35 +86,5 @@ impl IntegerValue {
 #[derive(Debug, Clone)]
 pub enum StringValue {
     Literal(String),
-    Format(Vec<FormatPart>),
-}
-
-#[derive(Debug, Clone)]
-pub enum FormatPart {
-    Literal(String),
-    Arg(FormatArg),
-}
-
-#[derive(Debug, Clone)]
-pub struct FormatArg {
-    pub name: String,
-    pub suffix: Option<String>,
-}
-
-impl FormatArg {
-    pub fn is_self(&self) -> bool {
-        self.name.starts_with("self.")
-    }
-
-    pub fn is_fn(&self) -> bool {
-        self.name.ends_with("()")
-    }
-
-    pub fn has_path(&self) -> bool {
-        self.name.contains("::")
-    }
-
-    pub fn is_const(&self) -> bool {
-        self.has_path() || (self.is_self() && !self.is_fn())
-    }
+    Template(Template),
 }

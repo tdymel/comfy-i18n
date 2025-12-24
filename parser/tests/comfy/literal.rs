@@ -1,5 +1,5 @@
 use comfy_i18n_ast::{
-    CompositeValue, FloatValue, IntegerValue, LiteralValue, NodeValue, SpannedAst, StringValue
+    CompositeValue, FloatValue, IntegerValue, LiteralValue, NodeValue, SpannedAst, StringValue,
 };
 use comfy_i18n_parser::Parser;
 use paste::paste;

@@ -96,10 +96,34 @@ fn composite() {
                     value: CompositeValue::Tuple,
                 } => {
                     assert_eq!(children.len(), 4);
-                    assert!(children.iter().any(|child| matches!(child.1.value, NodeValue::Composite { value: CompositeValue::Tuple, .. })));
-                    assert!(children.iter().any(|child| matches!(child.1.value, NodeValue::Composite { value: CompositeValue::Struct, .. })));
-                    assert!(children.iter().any(|child| matches!(child.1.value, NodeValue::Composite { value: CompositeValue::List { amount: 3 }, .. })));
-                    assert!(children.iter().any(|child| matches!(child.1.value, NodeValue::Composite { value: CompositeValue::List { amount: 4 }, .. })));
+                    assert!(children.iter().any(|child| matches!(
+                        child.1.value,
+                        NodeValue::Composite {
+                            value: CompositeValue::Tuple,
+                            ..
+                        }
+                    )));
+                    assert!(children.iter().any(|child| matches!(
+                        child.1.value,
+                        NodeValue::Composite {
+                            value: CompositeValue::Struct,
+                            ..
+                        }
+                    )));
+                    assert!(children.iter().any(|child| matches!(
+                        child.1.value,
+                        NodeValue::Composite {
+                            value: CompositeValue::List { amount: 3 },
+                            ..
+                        }
+                    )));
+                    assert!(children.iter().any(|child| matches!(
+                        child.1.value,
+                        NodeValue::Composite {
+                            value: CompositeValue::List { amount: 4 },
+                            ..
+                        }
+                    )));
                 }
                 _ => panic!(),
             }

@@ -10,14 +10,6 @@ use crate::{
     spanned_ast::SpannedAst,
 };
 
-// TODO: Tests
-/*
-
-// TODO: Support Args for Fn Args
-// TODO: Parse Format Strings properly
-
-*/
-
 #[derive(Debug, Clone)]
 pub struct Ast {
     pub identifier: Identifier,
