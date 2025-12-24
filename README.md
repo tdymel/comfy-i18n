@@ -9,7 +9,7 @@
 ✅ Blazingly fast
 
 ## Concept
-Comfy I18n aims to be a [source format and target language agnostic transpiler](CONTRIBUTING.md). Currently, only **rust** is implemented.
+Comfy I18n aims to be a source format and target language agnostic transpiler. Currently, only **rust** is implemented.
 
 It translates your i18n sources to usable structures in your source code. These structures are **component based** by design and are as such **nested** and **composable**.
 
