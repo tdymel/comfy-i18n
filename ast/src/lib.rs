@@ -15,3 +15,4 @@ pub use identifier::*;
 pub use node_id::*;
 pub use node_value::*;
 pub use spanned_ast::*;
+pub use template::*;

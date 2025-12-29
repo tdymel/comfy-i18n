@@ -146,10 +146,10 @@ version = "0.1.0"
 dependencies = [
  "comfy-i18n-ast",
  "criterion",
+ "dfmt",
  "paste",
  "proc-macro2",
  "quote",
- "regex",
  "syn",
  "thiserror",
 ]
@@ -224,9 +224,9 @@ checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
 
 [[package]]
 name = "dfmt"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28d2361a801d2a130f1c9aa3c66283c96ddf03e69767be3f8782a0ae33d5a96b"
+checksum = "74bd1017621a4292fcf63e7a2731687b8c4a333965003a570ed633884806d02e"
 
 [[package]]
 name = "either"

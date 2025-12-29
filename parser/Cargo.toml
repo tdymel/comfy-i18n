@@ -8,8 +8,8 @@ comfy-i18n-ast = { path = "./../ast" }
 proc-macro2 = "1"
 quote = "1"
 syn = "2"
-regex = "1"
 thiserror = "2"
+dfmt = "0.3.1"
 
 [dev-dependencies]
 paste = "1"

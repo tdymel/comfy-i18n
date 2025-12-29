@@ -1,4 +1,4 @@
-use crate::{Identifier, LiteralValue, NodeId};
+use crate::Identifier;
 
 #[derive(Debug, Clone)]
 pub struct Template(pub Vec<Piece>);
@@ -6,30 +6,33 @@ pub struct Template(pub Vec<Piece>);
 #[derive(Debug, Clone)]
 pub enum Piece {
     Literal(String),
+    BracketOpen,
+    BracketClose,
     Argument {
         name: ArgumentName,
-        specififer: Option<Specifier>,
+        specifier: Option<Specifier>,
     },
 }
 
 #[derive(Debug, Clone)]
 pub enum ArgumentName {
     Const(NameRef),
-    Function { name: NameRef, args: Vec<FnArg> },
     ArgumentKey(ArgumentKey),
 }
 
 #[derive(Debug, Clone)]
 pub enum NameRef {
-    Ast { node_id: NodeId, field: Identifier },
+    Ast {
+        origin: AstRefOrigin,
+        path: Vec<Identifier>,
+    },
     Other(String),
 }
 
 #[derive(Debug, Clone)]
-pub enum FnArg {
-    Literal(LiteralValue),
-    Function { name: NameRef, args: Vec<FnArg> },
-    Const(NameRef),
+pub enum AstRefOrigin {
+    RootNode,
+    SelfNode,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -16,10 +16,10 @@ fn string() {
 
 #[test]
 fn format() {
-    let result = "\"This is a {formatted} string with {crate::abc:some_mod} multiple {self.fn():dsfs} args. {crate::abc.dsfs():bla} {self.abc}\"".parse_literal().expect("Parsing failed");
+    let result = "\"This is a {formatted} string with {crate::abc:+<10} multiple {self.fn():#0} args. {crate::abc.dsfs():} {self.abc}\"".parse_literal().expect("Parsing failed");
     assert_eq!(
         format!("{:?}", result),
-        "Literal(String(Format([Literal(\"This is a \"), Arg(FormatArg { name: \"formatted\", suffix: None }), Literal(\" string with \"), Arg(FormatArg { name: \"crate::abc\", suffix: Some(\"some_mod\") }), Literal(\" multiple \"), Arg(FormatArg { name: \"self.fn()\", suffix: Some(\"dsfs\") }), Literal(\" args. \"), Arg(FormatArg { name: \"crate::abc.dsfs()\", suffix: Some(\"bla\") }), Literal(\" \"), Arg(FormatArg { name: \"self.abc\", suffix: None })])))"
+        "Literal(String(Template(Template([Literal(\"This is a \"), Argument { name: ArgumentKey(Name(\"formatted\")), specifier: None }, Literal(\" string with \"), Argument { name: Const(Other(\"crate::abc\")), specifier: Some(Specifier { ty: Display, alternate_form: false, fill_character: '+', alignment: Left, sign: false, pad_zero: false, width: Fixed(10), precision: Auto }) }, Literal(\" multiple \"), Argument { name: Const(Ast { origin: SelfNode, path: [Field(\"fn()\")] }), specifier: Some(Specifier { ty: Display, alternate_form: true, fill_character: ' ', alignment: Auto, sign: false, pad_zero: true, width: Fixed(0), precision: Auto }) }, Literal(\" args. \"), Argument { name: Const(Other(\"crate::abc.dsfs()\")), specifier: Some(Specifier { ty: Display, alternate_form: false, fill_character: ' ', alignment: Auto, sign: false, pad_zero: false, width: Fixed(0), precision: Auto }) }, Literal(\" \"), Argument { name: Const(Ast { origin: SelfNode, path: [Field(\"abc\")] }), specifier: None }]))))"
     );
 }
 
