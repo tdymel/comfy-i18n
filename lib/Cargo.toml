@@ -5,3 +5,6 @@ edition = "2024"
 
 [dependencies]
 dfmt = "0.3"
+comfy-i18n-ast = { path = "../ast" }
+comfy-i18n-parser = { path = "../parser" }
+comfy-i18n-generator = { path = "../generator" }

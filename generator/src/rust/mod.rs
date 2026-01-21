@@ -1,15 +1,9 @@
-pub struct RustGenerator;
+mod initialization;
+mod module;
+mod name;
+mod strct;
+mod utils;
+mod generator;
 
-impl RustGenerator {
-    pub fn gen_decl() {
-        todo!()
-    }
-
-    pub fn gen_init() {
-        todo!()
-    }
-
-    pub fn gen_impl() {
-        todo!()
-    }
-}
+pub use generator::RustGenerator;
+pub use name::NameSnakeCase;

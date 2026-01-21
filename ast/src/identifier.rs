@@ -6,11 +6,23 @@ impl Path {
         self.0.iter()
     }
 
-    pub fn append(self, id: Identifier) -> Self {
-        let mut new_path = Vec::new();
-        new_path.extend(self.0);
-        new_path.push(id);
-        Path(new_path)
+    pub fn append(mut self, id: Identifier) -> Self {
+        self.0.push(id);
+        self
+    }
+
+    pub fn prepend(mut self, id: Identifier) -> Self {
+        self.0.insert(0, id);
+        self
+    }
+
+    pub fn remove(mut self, index: usize) -> Option<Self> {
+        if self.0.len() > index {
+            self.0.remove(index);
+            Some(self)
+        } else {
+            None
+        }
     }
 
     pub fn parent_path(&self) -> Option<Path> {
@@ -19,6 +31,17 @@ impl Path {
         } else {
             Some(Path(self.0[..(self.0.len() - 1)].to_vec()))
         }
+    }
+
+    pub fn root(&self) -> Identifier {
+        self.0.get(0).unwrap().clone()
+    }
+
+    pub fn map<B, F>(&self, mapper_fn: F) -> Vec<B>
+    where
+        F: FnMut(&Identifier) -> B,
+    {
+        self.0.iter().map(mapper_fn).collect()
     }
 }
 

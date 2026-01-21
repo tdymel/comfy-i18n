@@ -128,7 +128,7 @@ impl Ast {
         }
     }
 
-    fn children_into(self) -> Option<impl Iterator<Item = Self>> {
+    pub fn children_into(self) -> Option<impl Iterator<Item = Self>> {
         match self.value {
             NodeValue::Composite { children, .. } => Some(children.into_values()),
             _ => None,
@@ -167,6 +167,13 @@ impl Ast {
 
     pub fn id_to_node_map(&self) -> HashMap<NodeId, &Self> {
         self.traverse().map(|node| (node.id, node)).collect()
+    }
+
+    pub fn id_to_path_map(&self) -> HashMap<NodeId, Path> {
+        let tree = self.id_to_node_map();
+        self.traverse()
+            .map(|node| (node.id, node.path(&tree)))
+            .collect()
     }
 
     pub fn path_to_node_id_map(&self) -> HashMap<Path, NodeId> {
