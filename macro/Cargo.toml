@@ -4,3 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+comfy-i18n-ast = { path = "./../ast" }
+comfy-i18n-parser = { path = "./../parser" }
+comfy-i18n-generator = { path = "./../generator" }
+proc-macro2 = "1"
+quote = "1"
+syn = "2"
+
+[lib]
+proc-macro = true

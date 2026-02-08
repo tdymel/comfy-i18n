@@ -4,6 +4,7 @@ use comfy_i18n_ast::{
     ArgumentKey, ArgumentName, AstRefOrigin, CompositeValue, FloatValue, Identifier, IntegerValue,
     LiteralValue, NameRef, NodeValue, Piece, SpannedAst, Specifier, StringValue, Template,
 };
+use dfmt::{AlternateForm, PadZero, Sign};
 use proc_macro2::Span;
 use quote::ToTokens;
 use syn::{
@@ -143,10 +144,10 @@ fn parse_template(input: &str, span: Span) -> Result<Vec<Piece>, Error> {
                                     dfmt::Type::Display => comfy_i18n_ast::Type::Display,
                                     _ => unreachable!(),
                                 },
-                                alternate_form: spec.alternate_form,
+                                alternate_form: spec.alternate_form == AlternateForm::Activated,
                                 fill_character: spec.fill_character,
-                                pad_zero: spec.pad_zero,
-                                sign: spec.sign,
+                                pad_zero: spec.pad_zero == PadZero::Activated,
+                                sign: spec.sign == Sign::Plus,
                                 alignment: match spec.alignment {
                                     dfmt::Alignment::Left => comfy_i18n_ast::Alignment::Left,
                                     dfmt::Alignment::Center => comfy_i18n_ast::Alignment::Center,

@@ -9,3 +9,7 @@ comfy-i18n-context = { path = "./../context" }
 proc-macro2 = "1"
 quote = "1"
 dfmt = "0.3"
+
+[dependencies.xxhash-rust]
+version = "0.8.12"
+features = ["xxh3"]

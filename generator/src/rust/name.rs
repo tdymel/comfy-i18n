@@ -11,10 +11,8 @@ impl NamePascalCase {
         let mut snake_case = String::new();
 
         for (i, ch) in self.0.chars().enumerate() {
-            if ch.is_uppercase() {
-                if i != 0 {
-                    snake_case.push('_');
-                }
+            if ch.is_uppercase() && i != 0 {
+                snake_case.push('_');
             }
             snake_case.push(ch);
         }
@@ -69,6 +67,10 @@ impl NameSnakeCase {
 
     pub fn concat(self, other: NameSnakeCase) -> Self {
         (self.0 + "_" + other.0.as_str()).into()
+    }
+
+    pub fn last_part(&self) -> String {
+        self.0.split("_").last().unwrap().to_string()
     }
 }
 

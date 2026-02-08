@@ -1,4 +1,4 @@
-use comfy_i18n_ast::{FloatValue, IntegerValue, StringValue};
+use comfy_i18n_ast::{FloatValue, IntegerValue, Template};
 use quote::{ToTokens, quote};
 
 use crate::rust::{
@@ -13,6 +13,30 @@ pub struct Initialization {
     pub ty: RustType,
     pub name: NameSnakeCase,
     pub value: RustValue,
+}
+
+impl Initialization {
+    pub fn rename(&mut self, name: NameSnakeCase) {
+        assert!(matches!(self.ty, RustType::Struct { .. }));
+        assert!(matches!(self.value, RustValue::Struct { .. }));
+
+        // TODO: This could break any time if a context contains "_"
+        let context = self.name.last_part();
+        self.name = name.clone().concat(NameSnakeCase::from(context));
+
+        self.ty = RustType::Struct {
+            mod_names: Vec::new(),
+            name: name.to_pascal_case(),
+        };
+
+        if let RustValue::Struct { fields, .. } = &self.value {
+            self.value = RustValue::Struct {
+                mod_names: Vec::new(),
+                name: name.to_pascal_case(),
+                fields: fields.clone(),
+            }
+        }
+    }
 }
 
 impl ToTokens for Initialization {
@@ -34,7 +58,7 @@ impl ToTokens for Initialization {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum VariableType {
     Const,
     Static,
@@ -49,7 +73,7 @@ impl ToTokens for VariableType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FieldValue {
     pub name: NameSnakeCase,
     pub value: RustValue,
@@ -66,9 +90,13 @@ impl ToTokens for FieldValue {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RustValue {
-    String(StringValue),
+    String(String),
+    Format {
+        name: NamePascalCase,
+        template: Template,
+    },
     Char(char),
     Float(FloatValue),
     Integer(IntegerValue),
@@ -94,10 +122,11 @@ pub enum RustValue {
 impl ToTokens for RustValue {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         tokens.extend(match self {
-            RustValue::String(string_value) => match string_value {
-                StringValue::Literal(val) => quote! { #val },
-                StringValue::Template(_template) => todo!(),
-            },
+            RustValue::String(val) => quote! { #val },
+            RustValue::Format { name, template } => {
+                let template = template.to_string();
+                quote! { #name { template: #template } }
+            }
             RustValue::Char(val) => quote! {#val},
             RustValue::Float(float_value) => match float_value {
                 FloatValue::F64(val) => quote! { #val },

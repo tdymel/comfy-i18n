@@ -34,7 +34,7 @@ impl Path {
     }
 
     pub fn root(&self) -> Identifier {
-        self.0.get(0).unwrap().clone()
+        self.0.first().unwrap().clone()
     }
 
     pub fn map<B, F>(&self, mapper_fn: F) -> Vec<B>

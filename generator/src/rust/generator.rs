@@ -11,7 +11,7 @@ use crate::rust::{
     initialization::{FieldValue, Initialization, RustValue},
     module::Module,
     name::NameSnakeCase,
-    strct::{Field, RustType, Struct},
+    strct::{Field, Format, RustType, Struct, StructVariation},
 };
 
 use super::initialization::VariableType;
@@ -22,7 +22,7 @@ struct AstContext {
 }
 
 impl AstContext {
-    pub fn map(ast_with_contexts: Ast) -> Module {
+    pub fn map(ast_with_contexts: Ast, root_name: String) -> Module {
         let contexts = ast_with_contexts
             .children_into()
             .expect("Root node must contain children")
@@ -43,7 +43,7 @@ impl AstContext {
             id_to_path,
         };
 
-        let node = ast_context.contexts.get(0).unwrap();
+        let node = ast_context.contexts.first().unwrap();
         let mut module = ast_context.to_module(node);
         let relative_path = ast_context.relative_path(&node.id);
         module.initializations = ast_context
@@ -51,6 +51,7 @@ impl AstContext {
             .iter()
             .map(|context| ast_context.to_initialization(context.by_path(&relative_path).unwrap()))
             .collect::<Vec<_>>();
+        module.rename(root_name.into());
 
         module
     }
@@ -65,7 +66,7 @@ impl AstContext {
 
     fn to_module(&self, ast: &Ast) -> Module {
         let name = NameSnakeCase::from(ast.identifier.clone());
-        let strct = self.to_struct(ast);
+        let struct_variations = self.to_struct_variations(ast);
         let modules = match &ast.value {
             NodeValue::Composite { children, .. } => children
                 .iter()
@@ -77,9 +78,42 @@ impl AstContext {
 
         Module {
             name,
-            strct: Some(strct),
+            strcts: struct_variations,
             initializations: Vec::default(),
             modules,
+        }
+    }
+
+    fn to_struct_variations(&self, ast: &Ast) -> Vec<StructVariation> {
+        match &ast.value {
+            NodeValue::Composite {
+                children,
+                // TODO: Also allow other composites
+                value: CompositeValue::Struct,
+            } => {
+                let mut variations = vec![StructVariation::Struct(self.to_struct(ast))];
+
+                let mut format_variantions = children
+                    .iter()
+                    .filter_map(|(identifier, node)| match &node.value {
+                        NodeValue::Literal(LiteralValue::String(StringValue::Template(
+                            template,
+                        ))) => Some(StructVariation::Format(Format {
+                            name: NameSnakeCase::from(identifier.clone()).to_pascal_case(),
+                            template: template.clone(),
+                            ref_strct: Some(
+                                NameSnakeCase::from(ast.identifier.clone()).to_pascal_case(),
+                            ),
+                        })),
+                        _ => None,
+                    })
+                    .collect::<Vec<StructVariation>>();
+
+                variations.append(&mut format_variantions);
+
+                variations
+            }
+            _ => Vec::new(),
         }
     }
 
@@ -91,8 +125,8 @@ impl AstContext {
                 value: CompositeValue::Struct,
             } => {
                 let fields = children
-                    .iter()
-                    .map(|(_, v)| self.to_field(v))
+                    .values()
+                    .map(|v| self.to_field(v))
                     .collect::<Vec<_>>();
 
                 strct.with_fields(fields)
@@ -132,7 +166,7 @@ impl AstContext {
                     name: NameSnakeCase::from(ast.identifier.clone()).to_pascal_case(),
                 },
                 CompositeValue::Tuple => {
-                    let mut pairs = children.iter().map(|(k, v)| (k, v)).collect::<Vec<_>>();
+                    let mut pairs = children.iter().collect::<Vec<_>>();
                     pairs.sort_by(|(k1, _), (k2, _)| k1.cmp(k2));
                     let types = pairs
                         .into_iter()
@@ -168,7 +202,9 @@ impl AstContext {
             NodeValue::Literal(literal_value) => match literal_value {
                 LiteralValue::String(string_value) => match string_value {
                     StringValue::Literal(_) => RustType::String,
-                    StringValue::Template(_template) => todo!(),
+                    StringValue::Template(..) => RustType::Format {
+                        name: NameSnakeCase::from(ast.identifier.clone()).to_pascal_case(),
+                    },
                 },
                 LiteralValue::Char(_) => RustType::Char,
                 LiteralValue::Float(float_value) => match float_value {
@@ -226,7 +262,7 @@ impl AstContext {
     fn to_rust_value(&self, ast: &Ast) -> RustValue {
         match &ast.value {
             NodeValue::Composite { children, value } => {
-                let mut pairs = children.iter().map(|(k, v)| (k, v)).collect::<Vec<_>>();
+                let mut pairs = children.iter().collect::<Vec<_>>();
                 pairs.sort_by(|(k1, _), (k2, _)| k1.cmp(k2));
                 let mut values = pairs
                     .into_iter()
@@ -273,12 +309,18 @@ impl AstContext {
                 }
             }
             NodeValue::Literal(literal_value) => match literal_value {
-                LiteralValue::String(string_value) => RustValue::String(string_value.clone()),
+                LiteralValue::String(string_value) => match string_value {
+                    StringValue::Literal(lit) => RustValue::String(lit.clone()),
+                    StringValue::Template(template) => RustValue::Format {
+                        name: NameSnakeCase::from(ast.identifier.clone()).to_pascal_case(),
+                        template: template.clone(),
+                    },
+                },
                 LiteralValue::Char(val) => RustValue::Char(*val),
                 LiteralValue::Float(float_value) => RustValue::Float(float_value.clone()),
                 LiteralValue::Integer(integer_value) => RustValue::Integer(integer_value.clone()),
                 LiteralValue::Bool(val) => RustValue::Bool(*val),
-                LiteralValue::Cast { expression } => todo!(),
+                LiteralValue::Cast { expression: _ } => todo!(),
             },
         }
     }
@@ -286,11 +328,11 @@ impl AstContext {
 
 // TODO: Make output deterministic
 pub trait RustGenerator {
-    fn to_rust(self) -> TokenStream;
+    fn to_rust(self, root_name: String) -> TokenStream;
 }
 
 impl RustGenerator for Ast {
-    fn to_rust(self) -> TokenStream {
-        AstContext::map(self).to_token_stream()
+    fn to_rust(self, root_name: String) -> TokenStream {
+        AstContext::map(self, root_name).to_token_stream()
     }
 }
