@@ -1,7 +1,7 @@
 use comfy_i18n_ast::Identifier;
 use quote::ToTokens;
 
-use crate::rust::utils::ToBasicTokenStream;
+use crate::rust::shared::ToBasicTokenStream;
 
 #[derive(Debug, Clone)]
 pub struct NamePascalCase(String);
@@ -21,6 +21,12 @@ impl NamePascalCase {
     }
 }
 
+impl From<Identifier> for NamePascalCase {
+    fn from(value: Identifier) -> Self {
+        NameSnakeCase::from(value).to_pascal_case()
+    }
+}
+
 impl From<String> for NamePascalCase {
     fn from(value: String) -> Self {
         NamePascalCase(value)
@@ -33,7 +39,13 @@ impl ToTokens for NamePascalCase {
     }
 }
 
-#[derive(Debug, Clone)]
+impl std::fmt::Display for NamePascalCase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NameSnakeCase(String);
 
 impl NameSnakeCase {
@@ -100,5 +112,11 @@ impl From<Identifier> for NameSnakeCase {
 impl ToTokens for NameSnakeCase {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         tokens.extend(self.0.to_basic_token_stream());
+    }
+}
+
+impl std::fmt::Display for NameSnakeCase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
     }
 }

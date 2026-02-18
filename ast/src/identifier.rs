@@ -2,6 +2,10 @@
 pub struct Path(Vec<Identifier>);
 
 impl Path {
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = &Identifier> {
         self.0.iter()
     }
@@ -61,4 +65,13 @@ impl From<Identifier> for Path {
 pub enum Identifier {
     Field(String),
     Element(usize),
+}
+
+impl std::fmt::Display for Identifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Identifier::Field(field) => f.write_str(field),
+            Identifier::Element(idx) => f.write_str(&idx.to_string()),
+        }
+    }
 }

@@ -10,15 +10,3 @@
 4. If necessary, extend the documentation and the examples.
 5. Create a pull a request and wait for our review. We will try to give you feedback as soon as we can.
 
-## Architecture
-The architecture resembles a pipeline of a transpiler.
-1. Parsing: Parse the AST from various source formats
-2. Validation: Missing translations, fmt arguments etc.
-3. Optimization: Const folding of fmt functions
-4. Generation: Generate translations for the desired target from the AST. 
-
-### Misc crates:
-* AST: Specifies the AST
-* Locale/Context?!: Specification and ICU integration
-* Macro: Crate that exposes the rust generator as a macro.
-* Lib: Umbrella crate for the rust eco-system

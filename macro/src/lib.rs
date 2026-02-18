@@ -1,16 +1,27 @@
-use comfy_i18n_ast::Ast;
-use comfy_i18n_generator::RustGenerator;
 use proc_macro::TokenStream;
+use quote::ToTokens;
 use syn::parse_macro_input;
 
+use crate::comfy_i18n::ComfyI18n;
 use crate::i18n::I18n;
 
+mod comfy_i18n;
 mod i18n;
 
 #[proc_macro]
 pub fn i18n(input: TokenStream) -> TokenStream {
-    let i18n = parse_macro_input!(input as I18n);
-    Ast::from(i18n.translations)
-        .to_rust(i18n.name.to_string())
-        .into()
+    let result = parse_macro_input!(input as I18n).to_token_stream();
+
+    println!("{}", result);
+
+    result.into()
+}
+
+#[proc_macro_derive(ComfyI18n, attributes(fallback))]
+pub fn comfy_i18n(input: TokenStream) -> TokenStream {
+    let result = parse_macro_input!(input as ComfyI18n).to_token_stream();
+
+    println!("{}", result);
+
+    result.into()
 }
