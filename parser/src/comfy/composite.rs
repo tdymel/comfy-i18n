@@ -33,7 +33,7 @@ impl Parse for Tuple {
         let values = Punctuated::<Value, syn::token::Comma>::parse_terminated(&content)?
             .into_iter()
             .enumerate()
-            .map(|(index, field)| SpannedAst::new(Identifier::Element(index), field.1, field.0))
+            .map(|(index, field)| SpannedAst::new(Identifier::TupleIndex(index), field.1, field.0))
             .collect::<Vec<_>>();
 
         Ok(Tuple(NodeValue::Composite {
@@ -52,7 +52,7 @@ impl Parse for List {
         let values = Punctuated::<Value, syn::token::Comma>::parse_separated_nonempty(&content)?
             .into_iter()
             .enumerate()
-            .map(|(index, field)| SpannedAst::new(Identifier::Element(index), field.1, field.0))
+            .map(|(index, field)| SpannedAst::new(Identifier::ArrayIndex(index), field.1, field.0))
             .collect::<Vec<_>>();
 
         let amount = if content.peek(syn::token::Semi) {

@@ -1,5 +1,3 @@
-use std::env::var;
-
 use comfy_i18n_generator::{
     components::{Field, Implementation, Initialization, Struct, UsePath},
     generator::{FieldValue, Path, RustGenerator, RustType, RustValue},
@@ -109,10 +107,7 @@ impl ComfyI18n {
                     variant.name.to_string().into(),
                     RustValue::Struct {
                         path,
-                        fields: vec![FieldValue::new(
-                            "fallback".into(),
-                            RustValue::Bool(variant.fallback),
-                        )],
+                        fields: vec![RustValue::Bool(variant.fallback)],
                     },
                 )
             })
@@ -159,7 +154,7 @@ impl ToTokens for ComfyI18n {
         ));
         generator.add_root_content(Struct::new(
             context_name_snake_case.to_pascal_case(),
-            vec![Field::new("fallback".into(), RustType::Bool)],
+            vec![Field::public("fallback".into(), RustType::Bool)],
         ));
         generator.add_root_contents(self.context_initializations(context_name_snake_case.clone()));
         generator.add_root_content(self.context_impl(context_name_snake_case.clone()));
@@ -183,7 +178,7 @@ impl ToTokens for ComfyI18n {
                     }
                 },
                 quote! {
-                    pub const fn fallback(&self, available: [Option<Self>; 2]) -> Self {
+                    pub const fn fallback(&self, available: [Option<Self>; Self::amount()]) -> Self {
                         let mut i = 0;
                         while i < available.len() {
                             if let Some(lang) = available[i]
@@ -212,7 +207,7 @@ impl ToTokens for ComfyI18n {
 
                         return available[0].expect("At least one language must be available.");
                     }
-                },
+                }
             ],
         ));
 

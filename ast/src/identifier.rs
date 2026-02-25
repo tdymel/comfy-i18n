@@ -64,14 +64,16 @@ impl From<Identifier> for Path {
 #[derive(PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord)]
 pub enum Identifier {
     Field(String),
-    Element(usize),
+    TupleIndex(usize),
+    ArrayIndex(usize),
 }
 
 impl std::fmt::Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Identifier::Field(field) => f.write_str(field),
-            Identifier::Element(idx) => f.write_str(&idx.to_string()),
+            Identifier::TupleIndex(idx) => f.write_str(&idx.to_string()),
+            Identifier::ArrayIndex(idx) => f.write_str(&idx.to_string()),
         }
     }
 }

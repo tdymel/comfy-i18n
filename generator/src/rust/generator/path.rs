@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 
+use comfy_i18n_ast::Identifier;
 use quote::ToTokens;
 
 use crate::shared::{NamePascalCase, NameSnakeCase, ToBasicTokenStream};
@@ -18,9 +19,18 @@ impl Path {
         }
     }
 
+    pub fn prepend_mod(mut self, part: NameSnakeCase) -> Self {
+        self.mods.push_front(part);
+        self
+    }
+
     pub fn add_mod(mut self, part: NameSnakeCase) -> Self {
         self.mods.push_back(part);
         self
+    }
+
+    pub fn ty(&self) -> Option<&NamePascalCase> {
+        self.ty.as_ref()
     }
 
     pub fn set_ty(mut self, ty: NamePascalCase) -> Self {
@@ -38,6 +48,44 @@ impl Path {
 
     pub fn iter_mods(&self) -> impl Iterator<Item = &NameSnakeCase> {
         self.mods.iter()
+    }
+
+    pub fn len_mods(&self) -> usize {
+        self.mods.len()
+    }
+
+    pub fn last_mod(&self) -> Option<&NameSnakeCase> {
+        self.mods.iter().last()
+    }
+
+    pub fn relative_to(&self, other_path: &Self) -> Self {
+        let mut new_path = self.clone();
+        for (p1, p2) in other_path.iter_mods().zip(self.iter_mods()) {
+            if p1 == p2 {
+                new_path.pop_front();
+            }
+        }
+        new_path
+    }
+
+    pub fn to_access_path(&self) -> String {
+        self.iter_mods()
+            .enumerate()
+            .fold(String::new(), |acc, (index, segment)| {
+                let result = if segment.to_string().starts_with("tuple_index") {
+                    format!("{}.{}()", acc, &segment.to_string()[11..])
+                } else if segment.to_string().starts_with("array_index") {
+                    format!("{}[{}]", acc, &segment.to_string()[11..])
+                } else {
+                    format!("{}.{}()", acc, segment)
+                };
+
+                if index == 0 {
+                    result[1..].to_string()
+                } else {
+                    result
+                }
+            })
     }
 }
 
@@ -76,8 +124,9 @@ impl From<comfy_i18n_ast::Path> for Path {
             .enumerate()
             .fold(Path::root(), |acc, (index, segment)| {
                 let part = match segment {
-                    comfy_i18n_ast::Identifier::Field(field) => field.to_string(),
-                    comfy_i18n_ast::Identifier::Element(index) => format!("elem{}", index),
+                    Identifier::Field(field) => field.to_string(),
+                    Identifier::TupleIndex(index) => format!("tuple_index{}", index),
+                    Identifier::ArrayIndex(_) => "array_index0".to_string(),
                 };
 
                 let mut acc = acc.add_mod(part.clone().into());

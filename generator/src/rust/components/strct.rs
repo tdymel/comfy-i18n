@@ -29,12 +29,38 @@ impl ToTokens for Struct {
 
         let name = &self.name;
         let fields = &self.fields;
+        let field_names = self
+            .fields
+            .iter()
+            .map(|it| it.name.clone())
+            .collect::<Vec<_>>();
+
+        let new_tys = self
+            .fields
+            .iter()
+            .map(|it| Field {
+                name: it.name.clone(),
+                optional: it.optional,
+                ty: it.ty.clone(),
+                public: false,
+            })
+            .collect::<Vec<_>>();
 
         // TODO: Not every type will support copy! Validation!
         tokens.extend(quote! {
             #[derive(Clone, Copy)]
             pub struct #name {
                 #(#fields),*
+            }
+
+            impl #name {
+                pub const fn new(
+                    #(#new_tys),*
+                ) -> Self {
+                    Self {
+                        #(#field_names),*
+                    }
+                }
             }
         });
     }
@@ -45,6 +71,7 @@ pub struct Field {
     pub name: NameSnakeCase,
     pub ty: RustType,
     pub optional: bool,
+    pub public: bool,
 }
 
 impl Field {
@@ -53,6 +80,7 @@ impl Field {
             name,
             ty,
             optional: true,
+            public: false,
         }
     }
 
@@ -61,6 +89,16 @@ impl Field {
             name,
             ty,
             optional: false,
+            public: false,
+        }
+    }
+
+    pub fn public(name: NameSnakeCase, ty: RustType) -> Self {
+        Self {
+            name,
+            ty,
+            optional: false,
+            public: true,
         }
     }
 }
@@ -70,15 +108,20 @@ impl ToTokens for Field {
         let name = &self.name.to_lowercase();
         let type_name = &self.ty;
 
-        // TODO: Make private
         if self.optional {
             tokens.extend(quote! {
-                pub #name: Option<#type_name>
+                #name: Option<#type_name>
             });
         } else {
-            tokens.extend(quote! {
-                pub #name: #type_name
-            });
+            if self.public {
+                tokens.extend(quote! {
+                    pub #name: #type_name
+                });
+            } else {
+                tokens.extend(quote! {
+                    #name: #type_name
+                });
+            }
         }
     }
 }

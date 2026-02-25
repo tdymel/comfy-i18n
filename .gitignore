@@ -1,2 +1,3 @@
 target
-/test.rs
+lib/tests/zzz_other_test.rs
+lib/tests/zzz_test.rs

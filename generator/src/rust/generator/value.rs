@@ -1,5 +1,6 @@
 use comfy_i18n_ast::{
-    Ast, CompositeValue, FloatValue, IntegerValue, LiteralValue, NodeValue, StringValue, Template,
+    Ast, CompositeValue, FloatValue, Identifier, IntegerValue, LiteralValue, NodeValue,
+    StringValue, Template,
 };
 use quote::{ToTokens, quote};
 
@@ -31,7 +32,7 @@ pub enum RustValue {
     },
     Struct {
         path: Path,
-        fields: Vec<FieldValue>,
+        fields: Vec<RustValue>,
     },
     Tuple(Vec<RustValue>),
     ListRepeated {
@@ -39,6 +40,8 @@ pub enum RustValue {
         amount: usize,
     },
     List(Vec<RustValue>),
+    Some(Box<RustValue>),
+    None,
 }
 
 impl ToTokens for RustValue {
@@ -88,9 +91,9 @@ impl ToTokens for RustValue {
             }
             RustValue::Struct { path, fields } => {
                 quote! {
-                    #path {
+                    #path::new(
                         #(#fields),*
-                    }
+                    )
                 }
             }
             RustValue::Tuple(values) => {
@@ -100,83 +103,109 @@ impl ToTokens for RustValue {
                 quote! { [#value; #amount] }
             }
             RustValue::List(values) => {
-                quote! { vec![#(#values),*] }
+                quote! { [#(#values),*] }
             }
+            RustValue::Some(val) => quote! { Some(#val) },
+            RustValue::None => quote! { None },
         });
     }
 }
 
 impl RustValue {
     pub fn new(ast: &Ast, context: &Context) -> Self {
-        match &ast.value {
+        Self::by_variant(
+            ast,
+            context,
+            &Identifier::Field(context.context_variant(&ast.id)),
+        )
+    }
+
+    pub fn by_variant(ast_orig: &Ast, context: &Context, variant: &Identifier) -> Self {
+        let ast = context.get_variant(&ast_orig.id, variant.clone());
+        if ast.is_none() {
+            return RustValue::None;
+        }
+        let ast = ast.unwrap();
+
+        match &ast_orig.value {
             NodeValue::Composite { children, value } => {
                 let mut pairs = children.iter().collect::<Vec<_>>();
                 pairs.sort_by(|(k1, _), (k2, _)| k1.cmp(k2));
                 let mut values = pairs
                     .into_iter()
-                    .map(|(k, v)| (k, Self::new(v, context)))
+                    .map(|(k, v)| (k, Self::by_variant(v, context, variant)))
                     .collect::<Vec<_>>();
 
                 match value {
                     CompositeValue::Struct => RustValue::Struct {
-                        path: context.relative_path(&ast.id),
+                        path: context.relative_path_to_root(&ast_orig.id),
                         fields: {
                             let mut fields = values
                                 .into_iter()
-                                .map(|(k, v)| FieldValue::optional(k.clone().into(), v))
+                                .map(|(_, v)| {
+                                    if let RustValue::None = v {
+                                        v
+                                    } else {
+                                        RustValue::Some(Box::new(v))
+                                    }
+                                })
                                 .collect::<Vec<_>>();
 
-                            fields.push(FieldValue::new(
-                                "comfyi18n_context".into(),
-                                RustValue::ContextVariant {
-                                    path: context.context_key().clone(),
-                                    variant: context.context_variant(&ast.id),
-                                },
-                            ));
+                            fields.push(RustValue::ContextVariant {
+                                path: context.context_key().clone(),
+                                variant: variant.to_string(),
+                            });
 
                             fields
                         },
                     },
-                    CompositeValue::Tuple => {
-                        RustValue::Tuple(values.into_iter().map(|(_, v)| v).collect())
-                    }
+                    CompositeValue::Tuple => RustValue::Struct {
+                        path: context.relative_path_to_root(&ast_orig.id),
+                        fields: vec![
+                            RustValue::ContextVariant {
+                                path: context.context_key().clone(),
+                                variant: variant.to_string(),
+                            },
+                            // TODO: Handle fields that dont exist
+                            RustValue::Tuple(
+                                values
+                                    .into_iter()
+                                    .map(|(_, v)| RustValue::Some(Box::new(v)))
+                                    .collect(),
+                            ),
+                        ],
+                    },
                     CompositeValue::List { amount: list_size } => {
-                        // let path = self.relative_path(&ast.id);
-                        // let amount_the_same = self.contexts.iter().all(|context| {
-                        //     matches!(
-                        //         context.by_path(&path).map(|it| &it.value),
-                        //         Some(&NodeValue::Composite {
-                        //             value: CompositeValue::List { amount },
-                        //             ..
-                        //         }) if amount == *list_size
-                        //     )
-                        // });
-
-                        // if amount_the_same {
-                        let (_, value) = values.remove(0);
-                        RustValue::ListRepeated {
-                            value: Box::new(value),
-                            amount: *list_size,
+                        if values.len() == 1 {
+                            let (_, value) = values.remove(0);
+                            RustValue::ListRepeated {
+                                value: Box::new(value),
+                                amount: *list_size,
+                            }
+                        } else {
+                            RustValue::List(values.into_iter().map(|(_, v)| v).collect())
                         }
-                        // } else {
-                        // RustValue::List(values.into_iter().map(|(_, v)| v).collect())
-                        // }
                     }
                 }
             }
-            NodeValue::Literal(literal_value) => match literal_value {
-                LiteralValue::String(string_value) => match string_value {
-                    StringValue::Literal(lit) => RustValue::String(lit.clone()),
-                    StringValue::Template(template) => RustValue::Format {
-                        path: context.relative_path(&ast.id),
-                        template: template.clone(),
+            NodeValue::Literal(..) => match &ast.value {
+                NodeValue::Literal(literal_value) => match literal_value {
+                    LiteralValue::String(string_value) => match string_value {
+                        StringValue::Literal(lit) => RustValue::String(lit.clone()),
+                        StringValue::Template(template) => RustValue::Format {
+                            path: context.relative_path_to_root(&ast.id),
+                            template: template.clone(),
+                        },
                     },
+                    LiteralValue::Char(val) => RustValue::Char(*val),
+                    LiteralValue::Float(float_value) => RustValue::Float(float_value.clone()),
+                    LiteralValue::Integer(integer_value) => {
+                        RustValue::Integer(integer_value.clone())
+                    }
+                    LiteralValue::Bool(val) => RustValue::Bool(*val),
+                    LiteralValue::Cast { expression: _ } => todo!(),
                 },
-                LiteralValue::Char(val) => RustValue::Char(*val),
-                LiteralValue::Float(float_value) => RustValue::Float(float_value.clone()),
-                LiteralValue::Integer(integer_value) => RustValue::Integer(integer_value.clone()),
-                LiteralValue::Bool(val) => RustValue::Bool(*val),
-                LiteralValue::Cast { expression: _ } => todo!(),
+                NodeValue::Composite { .. } => unreachable!(),
             },
         }
     }
@@ -212,7 +241,7 @@ impl ToTokens for FieldValue {
         let name = self.name.to_lowercase().to_token_stream();
         let value = self.value.to_token_stream();
 
-        if self.optional {
+        if self.optional && !matches!(self.value, RustValue::None) {
             tokens.extend(quote! {
                 #name: Some(#value)
             });

@@ -92,7 +92,7 @@ impl ToTokens for Format {
                         // TODO: Create new static template after const arguments
                         // TODO: Handle no args case 
                         pub fn format(&self, #(#format_fn_args),*) -> String {
-                            dfmt::dformat_unchecked!(self.template, #(#dformat_args),*)
+                            comfy_i18n::macro_use::dformat_unchecked!(self.template, #(#dformat_args),*)
                         }
                     }
 

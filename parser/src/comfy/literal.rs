@@ -69,7 +69,7 @@ impl Parse for Literal {
                             .enumerate()
                             .map(|(index, byte)| {
                                 SpannedAst::new(
-                                    Identifier::Element(index),
+                                    Identifier::TupleIndex(index),
                                     lit_byte.span(),
                                     NodeValue::Literal(LiteralValue::Integer(IntegerValue::U8(
                                         byte,
@@ -228,7 +228,7 @@ fn parse_template(input: &str, span: Span) -> Result<Vec<Piece>, Error> {
                                             path: name[5..]
                                                 .split(".")
                                                 .map(|part| match part.parse::<usize>() {
-                                                    Ok(index) => Identifier::Element(index),
+                                                    Ok(index) => Identifier::TupleIndex(index),
                                                     Err(_) => Identifier::Field(part.to_string()),
                                                 })
                                                 .collect(),

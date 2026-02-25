@@ -96,7 +96,7 @@ impl Ast {
                         assert!(matches!(node.identifier, Identifier::Field(..)))
                     }
                     _ => {
-                        assert!(matches!(node.identifier, Identifier::Element(..)))
+                        assert!(matches!(node.identifier, Identifier::TupleIndex(..)))
                     }
                 }
 

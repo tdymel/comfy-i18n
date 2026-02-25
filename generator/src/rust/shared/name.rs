@@ -103,7 +103,8 @@ impl From<Identifier> for NameSnakeCase {
     fn from(value: Identifier) -> Self {
         match value {
             Identifier::Field(name) => name,
-            Identifier::Element(index) => format!("elem{}", index),
+            Identifier::TupleIndex(index) => format!("tuple_index{}", index),
+            Identifier::ArrayIndex(index) => format!("array_index{}", index),
         }
         .into()
     }

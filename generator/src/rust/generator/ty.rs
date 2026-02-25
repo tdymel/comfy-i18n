@@ -8,7 +8,7 @@ use crate::{
     rust::shared::ToBasicTokenStream,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RustType {
     String,
     Char,
@@ -20,11 +20,11 @@ pub enum RustType {
         unsigned: bool,
         bits: u8,
     },
-    Tuple(Vec<RustType>),
     List {
         ty: Box<RustType>,
         amount: Option<usize>,
     },
+    Tuple(Path),
     Format(Path),
     Struct(Path),
     Other(Path),
@@ -54,11 +54,6 @@ impl ToTokens for RustType {
                 }
                 _ => panic!(),
             },
-            RustType::Tuple(rust_types) => {
-                quote! {
-                    (#(#rust_types),*)
-                }
-            }
             RustType::List {
                 ty: rust_type,
                 amount,
@@ -69,46 +64,34 @@ impl ToTokens for RustType {
                     quote! {Vec<#rust_type>}
                 }
             }
-            RustType::Format(path) | RustType::Struct(path) | RustType::Other(path) => {
-                path.to_token_stream()
-            }
+            RustType::Format(path)
+            | RustType::Tuple(path)
+            | RustType::Struct(path)
+            | RustType::Other(path) => path.to_token_stream(),
         });
     }
 }
 
 impl RustType {
-    pub fn new(node: &Ast, context: &Context) -> Self {
+    pub fn new(node: &Ast, context: &Context, relative_root: &Path) -> Self {
         match &node.value {
             NodeValue::Composite { children, value } => match value {
-                CompositeValue::Struct => Self::Struct(context.relative_path(&node.id)),
-                CompositeValue::Tuple => {
-                    let mut pairs = children.iter().collect::<Vec<_>>();
-                    pairs.sort_by(|(k1, _), (k2, _)| k1.cmp(k2));
-                    let types = pairs
-                        .into_iter()
-                        .map(|(_, v)| Self::new(v, context))
-                        .collect::<Vec<_>>();
-
-                    Self::Tuple(types)
-                }
+                CompositeValue::Struct => Self::Struct(
+                    context
+                        .relative_path_to_root(&node.id)
+                        .relative_to(relative_root),
+                ),
+                CompositeValue::Tuple => Self::Tuple(
+                    context
+                        .relative_path_to_root(&node.id)
+                        .relative_to(relative_root),
+                ),
                 CompositeValue::List { amount: list_size } => {
-                    // let path = context.relative_path(&node.id);
-                    // let amount_the_same = self.contexts.iter().all(|context| {
-                    //     matches!(
-                    //         context.by_path(&path).map(|it| &it.value),
-                    //         Some(&NodeValue::Composite {
-                    //             value: CompositeValue::List { amount },
-                    //             ..
-                    //         }) if amount == *list_size
-                    //     )
-                    // });
-
-                    let ty = Self::new(children.get(&Identifier::Element(0)).unwrap(), context);
-                    // let amount = if amount_the_same {
-                    //     Some(*list_size)
-                    // } else {
-                    //     None
-                    // };
+                    let ty = Self::new(
+                        children.get(&Identifier::ArrayIndex(0)).unwrap(),
+                        context,
+                        relative_root,
+                    );
                     RustType::List {
                         ty: Box::new(ty),
                         amount: Some(*list_size),
@@ -118,7 +101,9 @@ impl RustType {
             NodeValue::Literal(literal_value) => match literal_value {
                 LiteralValue::String(string_value) => match string_value {
                     StringValue::Literal(_) => RustType::String,
-                    StringValue::Template(..) => RustType::Format(context.relative_path(&node.id)),
+                    StringValue::Template(..) => {
+                        RustType::Format(context.relative_path_to_root(&node.id))
+                    }
                 },
                 LiteralValue::Char(_) => RustType::Char,
                 LiteralValue::Float(float_value) => match float_value {
