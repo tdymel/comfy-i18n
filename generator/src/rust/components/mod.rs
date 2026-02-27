@@ -1,17 +1,21 @@
+mod array_wrapper;
+mod fallback_fn;
 mod format;
+mod hackfn;
 mod implementation;
 mod initialization;
 mod strct;
+mod tuple_wrapper;
 mod use_path;
 mod value_wrapper;
-mod tuple_wrapper;
-mod array_wrapper;
 
+pub use array_wrapper::ArrayWrapper;
+pub use fallback_fn::fallback_fn;
 pub use format::Format;
+pub use hackfn::hackfn;
 pub use implementation::Implementation;
 pub use initialization::Initialization;
-pub use strct::{Field, Struct};
+pub use strct::{Field, Struct, strct};
+pub use tuple_wrapper::tuple_wrapper;
 pub use use_path::UsePath;
 pub use value_wrapper::ValueWrapper;
-pub use tuple_wrapper::TupleWrapper;
-pub use array_wrapper::ArrayWrapper;

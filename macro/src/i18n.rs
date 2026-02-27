@@ -1,17 +1,15 @@
-use comfy_i18n_ast::{Ast, CompositeValue, Identifier, LiteralValue, NodeValue, SpannedAst, StringValue};
+use comfy_i18n_ast::{Ast, CompositeValue, Identifier, LiteralValue, NodeValue, StringValue};
 use comfy_i18n_generator::{
-    components::{Field, Format, Implementation, Initialization, Struct, TupleWrapper, ValueWrapper},
-    generator::{Context, Path, RustGenerator, RustType, RustValue},
+    components::{Format, Implementation, Initialization, strct, tuple_wrapper},
+    generator::{Context, Path, RustGenerator, RustValue},
     shared::{NamePascalCase, NameSnakeCase, ToBasicTokenStream},
 };
 use comfy_i18n_parser::Parser;
-use proc_macro2::Span;
 use quote::{ToTokens, quote};
 use syn::{Ident, parse::Parse};
 
 pub struct I18n {
     pub name: Ident,
-    pub translations: SpannedAst<Span>,
     pub context: Context,
 }
 
@@ -49,14 +47,13 @@ impl Parse for I18n {
                 });
 
         let context = Context::new(
-            Ast::from(translations.clone()),
+            Ast::from(translations),
             NamePascalCase::from(name_value.to_string()).to_snake_case(),
             context_key,
         );
 
         Ok(Self {
             name: name_value,
-            translations,
             context,
         })
     }
@@ -90,7 +87,7 @@ impl I18n {
             .iter()
             .map(|ctx| {
                 format!(
-                    "Self::{} => {}",
+                    "Self::{} => &{}",
                     ctx.identifier,
                     ctx.identifier.to_string().to_uppercase()
                 )
@@ -100,7 +97,7 @@ impl I18n {
         Implementation::new(
             self.context.context_key().clone(),
             vec![quote! {
-                pub const fn #name(&self) -> #strct_name {
+                pub fn #name(&self) -> &'static #strct_name {
                     let mut contexts = [None; Self::amount()];
                     #(#available_contexts)*
 
@@ -122,121 +119,62 @@ impl ToTokens for I18n {
         generator.add_root_content(self.context_impl());
 
         for variant in self.context.context_variants() {
-            generator.add_root_content(Initialization::new_const(
+            generator.add_root_content(Initialization::new_static(
                 Path::root().set_ty(self.name_snake_case().to_pascal_case()),
                 variant.clone().into(),
                 RustValue::by_variant(reference_tree, &self.context, &variant),
             ));
         }
 
-        for node in reference_tree.traverse() {
+        for node in reference_tree
+            .traverse()
+            .filter(|node| match &node.value {
+                NodeValue::Composite {
+                    value: CompositeValue::Struct,
+                    ..
+                }
+                | NodeValue::Composite {
+                    value: CompositeValue::Tuple,
+                    ..
+                }
+                | NodeValue::Literal(LiteralValue::String(StringValue::Template(_))) => true,
+                _ => false,
+            })
+            .filter(|node| {
+                if let Identifier::ArrayIndex(index) = node.identifier
+                    && index > 0
+                {
+                    false
+                } else {
+                    true
+                }
+            })
+        {
             let path = self.context.relative_path_to_root(&node.id);
             match &node.value {
                 NodeValue::Composite {
                     children,
                     value: CompositeValue::Struct,
                 } => {
-                    let strct_name = if path.has_no_mods() {
-                        self.name_snake_case().to_pascal_case()
-                    } else {
-                        node.identifier.clone().into()
-                    };
-
-                    let mut pairs = children.iter().collect::<Vec<_>>();
-                    pairs.sort_by(|(k1, _), (k2, _)| k1.cmp(k2));
-                    let mut fields = pairs
-                        .iter()
-                        .map(|(_, field)| {
-                            Field::optional(
-                                field.identifier.clone().into(),
-                                RustType::new(field, &self.context, &path),
-                            )
-                        })
-                        .collect::<Vec<_>>();
-
-                    // TODO: This fallback impl was implmented at multiple places already
-                    // TODO: Refactor this mess
-                    let context_key = self.context.context_key().clone();
-                    let absolute_path = path.clone().prepend_mod(self.name_snake_case()).set_ty(node.identifier.clone().into());
-                    let access_path = absolute_path.to_access_path().to_basic_token_stream();
-
-                    let fns = children
-                    .values()
-                    .filter(|ast| !matches!(ast.value, NodeValue::Literal(LiteralValue::String(StringValue::Template(..)))))
-                    .map(|ast| {
-                        let name = NameSnakeCase::from(ast.identifier.clone());
-                        let contexts = self.context.available_context_variants(&ast.id)
-                            .enumerate()
-                            .map(|(index, variant)| 
-                                format!("contexts[{}] = Some({}::{});", index, context_key, variant).to_basic_token_stream()
-                            );
-
-                        let ty = RustType::new(ast, &self.context, &path);
-                        quote! {
-                            pub fn #name(&self) -> #ty {
-                                let mut contexts = [None; #context_key::amount()];
-                                #(#contexts)*
-                                self.comfy_i18n_context.fallback(contexts).#access_path.#name.unwrap()
-                            }
-                        }
-                    })
-                    .collect::<Vec<_>>();
-
-                    generator.add_content(
-                        path.clone(),
-                        Implementation::new(Path::root().set_ty(strct_name.clone()), fns),
-                    );
-
-                    // TODO: Push this deeper into the struct?
-                    fields.push(Field::new(
-                        "comfy_i18n_context".into(),
-                        RustType::Other(self.context.context_key().clone()),
-                    ));
-                    generator.add_content(path.clone(), Struct::new(strct_name.clone(), fields));
+                    generator.add_content(path.clone(), strct(node, children, &self.context, true))
                 }
-                NodeValue::Composite { children, value: CompositeValue::Tuple } => {
-                    if let Identifier::ArrayIndex(index) = node.identifier 
-                        && index > 0 
-                        {
-                            continue;
-                        } 
-
-                    let mut pairs = children.iter().collect::<Vec<_>>();
-                    pairs.sort_by(|(k1, _), (k2, _)| k1.cmp(k2));
-                    let tys = pairs
-                        .iter()
-                        .map(|(_, field)| 
-                                RustType::new(field, &self.context, &path)
-                        )
-                        .collect::<Vec<_>>();
-
-                    for (index, ty) in tys.iter().enumerate() {
-                        generator.add_content(path.clone(), ValueWrapper::new(
-                            path.clone().prepend_mod(self.name_snake_case()).add_mod(format!("tuple_index{}", index).into()).set_ty(format!("Elem{}", index).into()), 
-                        self.context.context_key().clone(), 
-                        self.context.context_variants().map(|it| it.to_string()).collect(), 
-                        ty.clone()
-                        ));
-                    }
-
-                    generator.add_content(path.clone(), TupleWrapper::new(
-                        path.prepend_mod(self.name_snake_case()).set_ty(node.identifier.clone().into()), 
-                        self.context.context_key().clone(), 
-                        tys));
-                }
-                NodeValue::Literal(LiteralValue::String(
-                    StringValue::Template(template),
-                )) => {
+                NodeValue::Composite {
+                    children,
+                    value: CompositeValue::Tuple,
+                } => generator.add_content(path, tuple_wrapper(node, children, &self.context)),
+                NodeValue::Literal(LiteralValue::String(StringValue::Template(template))) => {
                     generator.add_content(
                         path,
                         Format::new(
                             node.identifier.clone().into(),
+                            self.context.context_key().clone(),
                             template.clone(),
                             self.context.relative_path_to_root(&node.parent.unwrap()),
+                            self.context.root_name(),
                         ),
                     );
                 }
-                _ => {}
+                _ => unreachable!(),
             }
         }
 

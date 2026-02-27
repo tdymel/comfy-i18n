@@ -29,17 +29,17 @@ impl ToTokens for ArrayWrapper {
         let size = &self.size;
 
         tokens.extend(quote! {
-            #[derive(Clone, Copy)]
+            #[derive(Clone)]
             pub struct #name {
                 value: [#ty; #size]
             }
 
             impl #name {
-                pub const fn new(_comfy_i18n_context: #context_path, value: [#ty; #size]) -> Self {
+                pub fn new(_comfy_i18n_context: #context_path, value: [#ty; #size]) -> Self {
                     Self { value }
                 }
 
-                pub const fn value(&self) -> [#ty; #size] {
+                pub fn value(&self) -> [#ty; #size] {
                     self.value
                 }
             }

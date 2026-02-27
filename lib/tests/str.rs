@@ -43,3 +43,21 @@ fn fallback() {
         Language::EN.fallback_test().str_value()
     );
 }
+
+i18n!(
+    name: Cast,
+    key: crate::Language,
+    translations: {
+        DE: {
+            casted_value: crate::Language::DE.happy().str_value() as &'static str,
+        },
+    }
+);
+
+#[test]
+fn cast() {
+    assert_eq!(
+        Language::DE.cast().casted_value(),
+        &Language::DE.happy().str_value()
+    );
+}

@@ -29,6 +29,10 @@ impl Initialization {
     pub fn new_const(ty: Path, name: NameSnakeCase, value: RustValue) -> Self {
         Self::new(VariableType::Const, ty, name, value)
     }
+
+    pub fn new_static(ty: Path, name: NameSnakeCase, value: RustValue) -> Self {
+        Self::new(VariableType::Static, ty, name, value)
+    }
 }
 
 impl ToTokens for Initialization {

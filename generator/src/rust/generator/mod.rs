@@ -10,5 +10,5 @@ pub use context::Context;
 pub use generator::RustGenerator;
 pub use path::Path;
 pub use ty::RustType;
-pub use value::{FieldValue, RustValue};
+pub use value::RustValue;
 pub use var_ty::VariableType;

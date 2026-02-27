@@ -24,11 +24,11 @@ i18n!(
 
 #[test]
 fn happy() {
-    assert_eq!(Language::DE.happy().list1(), [1; 10]);
-    assert_eq!(Language::DE.happy().list2(), [1, 2, 3, 4]);
+    assert_eq!(Language::DE.happy().list1(), &[1; 10]);
+    assert_eq!(Language::DE.happy().list2(), &[1, 2, 3, 4]);
 
-    assert_eq!(Language::EN.happy().list1(), [2; 10]);
-    assert_eq!(Language::EN.happy().list2(), [5, 6, 7, 8]);
+    assert_eq!(Language::EN.happy().list1(), &[2; 10]);
+    assert_eq!(Language::EN.happy().list2(), &[5, 6, 7, 8]);
 }
 
 i18n!(
@@ -61,5 +61,5 @@ i18n!(
 
 #[test]
 fn nested() {
-    assert_eq!(Language::DE.nested().value(), [[[2; 2], [3; 2]]; 1]);
+    assert_eq!(Language::DE.nested().value(), &[[[2; 2], [3; 2]]; 1]);
 }

@@ -1,0 +1,9 @@
+simple_value: "DE simple value"
+simple_value_flt: 3.14
+fmt2: "%{a}%{b}"
+fmt7: "%{a}%{b}%{c}%{d}%{e}%{f}%{g}"
+nested1:
+  nested2:
+    nested3:
+      nested4:
+        simple_nested_value: "Wambo"

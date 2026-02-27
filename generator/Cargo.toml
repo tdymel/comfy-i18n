@@ -5,10 +5,9 @@ edition = "2024"
 
 [dependencies]
 comfy-i18n-ast = { path = "./../ast" }
-comfy-i18n-context = { path = "./../context" }
 proc-macro2 = "1"
 quote = "1"
-dfmt = "0.3"
+dfmt = "0.4.1"
 
 [dependencies.xxhash-rust]
 version = "0.8.12"

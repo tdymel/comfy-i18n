@@ -16,6 +16,7 @@ pub enum RustValue {
     Format {
         path: Path,
         template: Template,
+        context_variant: Box<RustValue>,
     },
     Char(char),
     Float(FloatValue),
@@ -42,15 +43,24 @@ pub enum RustValue {
     List(Vec<RustValue>),
     Some(Box<RustValue>),
     None,
+    Cast(proc_macro2::TokenStream),
 }
 
 impl ToTokens for RustValue {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         tokens.extend(match self {
             RustValue::String(val) => quote! { #val },
-            RustValue::Format { path, template } => {
-                let template = template.to_string();
-                quote! { #path { template: #template } }
+            RustValue::Format { path, template, context_variant } => {
+                let mut template_str = template.to_string();
+                template.arguments()
+                    .iter()
+                    .for_each(|(arg, _)| {
+                        if arg.to_string().contains(".") {
+                            template_str = template_str.replace(&arg.to_string(), &arg.to_string().replace(".", "_"));
+                        }
+                    });
+
+                quote! { #path::new(#context_variant, comfy_i18n::macro_use::Template::parse(#template_str).unwrap()) }
             }
             RustValue::Char(val) => quote! {#val},
             RustValue::Float(float_value) => match float_value {
@@ -103,10 +113,13 @@ impl ToTokens for RustValue {
                 quote! { [#value; #amount] }
             }
             RustValue::List(values) => {
-                quote! { [#(#values),*] }
+                // TODO
+                // quote! { [#(#values),*] }
+                quote! { vec![#(#values),*] }
             }
             RustValue::Some(val) => quote! { Some(#val) },
             RustValue::None => quote! { None },
+            RustValue::Cast(expr) => quote! {{ #expr }}
         });
     }
 }
@@ -178,10 +191,17 @@ impl RustValue {
                     CompositeValue::List { amount: list_size } => {
                         if values.len() == 1 {
                             let (_, value) = values.remove(0);
-                            RustValue::ListRepeated {
-                                value: Box::new(value),
-                                amount: *list_size,
-                            }
+                            // TODO: Requires checking if children are copy
+                            // RustValue::ListRepeated {
+                            //     value: Box::new(value),
+                            //     amount: *list_size,
+                            // }
+                            RustValue::List(
+                                std::iter::repeat(value)
+                                    .take(*list_size)
+                                    .map(|it| it)
+                                    .collect(),
+                            )
                         } else {
                             RustValue::List(values.into_iter().map(|(_, v)| v).collect())
                         }
@@ -195,6 +215,10 @@ impl RustValue {
                         StringValue::Template(template) => RustValue::Format {
                             path: context.relative_path_to_root(&ast.id),
                             template: template.clone(),
+                            context_variant: Box::new(RustValue::ContextVariant {
+                                path: context.context_key().clone(),
+                                variant: variant.to_string(),
+                            }),
                         },
                     },
                     LiteralValue::Char(val) => RustValue::Char(*val),
@@ -203,52 +227,12 @@ impl RustValue {
                         RustValue::Integer(integer_value.clone())
                     }
                     LiteralValue::Bool(val) => RustValue::Bool(*val),
-                    LiteralValue::Cast { expression: _ } => todo!(),
+                    LiteralValue::Cast { expression, .. } => {
+                        RustValue::Cast(expression.to_basic_token_stream())
+                    }
                 },
                 NodeValue::Composite { .. } => unreachable!(),
             },
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct FieldValue {
-    pub name: NameSnakeCase,
-    pub value: RustValue,
-    pub optional: bool,
-}
-
-impl FieldValue {
-    pub fn optional(name: NameSnakeCase, value: RustValue) -> Self {
-        Self {
-            name,
-            value,
-            optional: true,
-        }
-    }
-
-    pub fn new(name: NameSnakeCase, value: RustValue) -> Self {
-        Self {
-            name,
-            value,
-            optional: false,
-        }
-    }
-}
-
-impl ToTokens for FieldValue {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        let name = self.name.to_lowercase().to_token_stream();
-        let value = self.value.to_token_stream();
-
-        if self.optional && !matches!(self.value, RustValue::None) {
-            tokens.extend(quote! {
-                #name: Some(#value)
-            });
-        } else {
-            tokens.extend(quote! {
-                #name: #value
-            });
         }
     }
 }

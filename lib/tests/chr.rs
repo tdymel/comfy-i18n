@@ -22,9 +22,9 @@ i18n!(
 
 #[test]
 fn happy() {
-    assert_eq!(Language::DE.happy().value(), 'A');
+    assert_eq!(Language::DE.happy().value(), &'A');
 
-    assert_eq!(Language::EN.happy().value(), 'B');
+    assert_eq!(Language::EN.happy().value(), &'B');
 }
 
 i18n!(

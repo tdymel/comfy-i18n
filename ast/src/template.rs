@@ -81,9 +81,20 @@ pub enum NameRef {
 }
 
 impl std::fmt::Display for NameRef {
-    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            NameRef::Ast { origin: _, path: _ } => todo!(),
+            NameRef::Ast { origin, path } => match origin {
+                AstRefOrigin::RootNode => f.write_str(
+                    &path
+                        .iter()
+                        .fold("root".to_string(), |acc, it| format!("{}.{}", acc, it)),
+                ),
+                AstRefOrigin::SelfNode => f.write_str(
+                    &path
+                        .iter()
+                        .fold("self".to_string(), |acc, it| format!("{}.{}", acc, it)),
+                ),
+            },
             NameRef::Other(_) => todo!(),
         }
     }

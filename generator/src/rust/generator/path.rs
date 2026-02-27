@@ -33,6 +33,11 @@ impl Path {
         self.ty.as_ref()
     }
 
+    pub fn clear_ty(mut self) -> Self {
+        self.ty = None;
+        self
+    }
+
     pub fn set_ty(mut self, ty: NamePascalCase) -> Self {
         self.ty = Some(ty);
         self

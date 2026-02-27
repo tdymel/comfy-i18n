@@ -16,7 +16,7 @@ pub enum LiteralValue {
     Float(FloatValue),
     Integer(IntegerValue),
     Bool(bool),
-    Cast { expression: String },
+    Cast { expression: String, ty: String },
 }
 
 #[derive(Debug, Clone)]

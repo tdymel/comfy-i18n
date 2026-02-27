@@ -81,6 +81,12 @@ impl Context {
         &self.context_key
     }
 
+    pub fn get(&self, node_id: &NodeId) -> &Ast {
+        let path = self.id_to_path.get(node_id).unwrap();
+        let variant = path.root();
+        self.get_variant(node_id, variant).unwrap()
+    }
+
     pub fn get_variant_comfy_path(
         &self,
         node_id: &NodeId,
@@ -130,5 +136,9 @@ impl Context {
                     .contains_key(&self.get_variant_comfy_path(node_id, id.clone()))
             })
             .map(|id| id.to_string())
+    }
+
+    pub fn root_name(&self) -> NameSnakeCase {
+        self.root_name.clone()
     }
 }

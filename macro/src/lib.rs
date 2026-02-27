@@ -12,16 +12,12 @@ mod i18n;
 pub fn i18n(input: TokenStream) -> TokenStream {
     let result = parse_macro_input!(input as I18n).to_token_stream();
 
-    println!("{}", result);
-
     result.into()
 }
 
 #[proc_macro_derive(ComfyI18n, attributes(fallback))]
 pub fn comfy_i18n(input: TokenStream) -> TokenStream {
     let result = parse_macro_input!(input as ComfyI18n).to_token_stream();
-
-    println!("{}", result);
 
     result.into()
 }

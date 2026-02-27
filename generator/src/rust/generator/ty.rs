@@ -28,6 +28,7 @@ pub enum RustType {
     Format(Path),
     Struct(Path),
     Other(Path),
+    Cast(proc_macro2::TokenStream),
 }
 
 impl ToTokens for RustType {
@@ -52,22 +53,21 @@ impl ToTokens for RustType {
                     .to_basic_token_stream();
                     quote! { #type_name }
                 }
-                _ => panic!(),
+                _ => unreachable!(),
             },
-            RustType::List {
-                ty: rust_type,
-                amount,
-            } => {
-                if let Some(amount) = amount {
-                    quote! { [#rust_type; #amount]}
-                } else {
-                    quote! {Vec<#rust_type>}
-                }
+            RustType::List { ty: rust_type, .. } => {
+                // TODO: Requires us to check if the children are Copy or not
+                // if let Some(amount) = amount {
+                //     quote! { [#rust_type; #amount]}
+                // } else {
+                quote! {Vec<#rust_type>}
+                // }
             }
             RustType::Format(path)
             | RustType::Tuple(path)
             | RustType::Struct(path)
             | RustType::Other(path) => path.to_token_stream(),
+            RustType::Cast(ty) => ty.clone(),
         });
     }
 }
@@ -101,9 +101,11 @@ impl RustType {
             NodeValue::Literal(literal_value) => match literal_value {
                 LiteralValue::String(string_value) => match string_value {
                     StringValue::Literal(_) => RustType::String,
-                    StringValue::Template(..) => {
-                        RustType::Format(context.relative_path_to_root(&node.id))
-                    }
+                    StringValue::Template(..) => RustType::Format(
+                        context
+                            .relative_path_to_root(&node.id)
+                            .relative_to(relative_root),
+                    ),
                 },
                 LiteralValue::Char(_) => RustType::Char,
                 LiteralValue::Float(float_value) => match float_value {
@@ -153,7 +155,7 @@ impl RustType {
                     },
                 },
                 LiteralValue::Bool(_) => RustType::Bool,
-                LiteralValue::Cast { .. } => todo!(),
+                LiteralValue::Cast { ty, .. } => RustType::Cast(ty.to_basic_token_stream()),
             },
         }
     }

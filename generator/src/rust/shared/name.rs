@@ -49,6 +49,10 @@ impl std::fmt::Display for NamePascalCase {
 pub struct NameSnakeCase(String);
 
 impl NameSnakeCase {
+    pub fn tuple_index(index: usize) -> Self {
+        format!("tuple_index{}", index).into()
+    }
+
     pub fn to_lowercase(&self) -> Self {
         Self(self.0.to_lowercase())
     }

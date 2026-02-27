@@ -89,6 +89,7 @@ impl Parse for Literal {
             },
             Expr::Cast(cast_expr) => Ok(Literal(NodeValue::Literal(LiteralValue::Cast {
                 expression: cast_expr.to_token_stream().to_string(),
+                ty: cast_expr.ty.to_token_stream().to_string(),
             }))),
             _ => Err(Error::new(
                 input.span(),

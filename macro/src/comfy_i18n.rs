@@ -1,6 +1,6 @@
 use comfy_i18n_generator::{
     components::{Field, Implementation, Initialization, Struct, UsePath},
-    generator::{FieldValue, Path, RustGenerator, RustType, RustValue},
+    generator::{Path, RustGenerator, RustType, RustValue},
     shared::{NamePascalCase, NameSnakeCase, ToBasicTokenStream},
 };
 use quote::{ToTokens, quote};

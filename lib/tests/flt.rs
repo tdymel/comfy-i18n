@@ -24,11 +24,11 @@ i18n!(
 
 #[test]
 fn happy() {
-    assert_eq!(Language::DE.happy().f32_value(), 3.14f32);
-    assert_eq!(Language::DE.happy().f64_value(), 3.14f32);
+    assert_eq!(Language::DE.happy().f32_value(), &3.14f32);
+    assert_eq!(Language::DE.happy().f64_value(), &3.14f32);
 
-    assert_eq!(Language::EN.happy().f32_value(), 3.15f32);
-    assert_eq!(Language::EN.happy().f64_value(), 3.15f32);
+    assert_eq!(Language::EN.happy().f32_value(), &3.15f32);
+    assert_eq!(Language::EN.happy().f64_value(), &3.15f32);
 }
 
 i18n!(

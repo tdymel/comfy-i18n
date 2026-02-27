@@ -22,15 +22,15 @@ i18n!(
 
 #[test]
 fn happy() {
-    assert_eq!(Language::DE.happy().value().0(), 1);
-    assert_eq!(Language::DE.happy().value().1(), '2');
+    assert_eq!(Language::DE.happy().value().0(), &1);
+    assert_eq!(Language::DE.happy().value().1(), &'2');
     assert_eq!(Language::DE.happy().value().2(), "3");
-    assert_eq!(Language::DE.happy().value().value(), (1, '2', "3"));
+    assert_eq!(Language::DE.happy().value().value(), (&1, &'2', "3"));
 
-    assert_eq!(Language::EN.happy().value().0(), 4);
-    assert_eq!(Language::EN.happy().value().1(), '5');
+    assert_eq!(Language::EN.happy().value().0(), &4);
+    assert_eq!(Language::EN.happy().value().1(), &'5');
     assert_eq!(Language::EN.happy().value().2(), "6");
-    assert_eq!(Language::EN.happy().value().value(), (4, '5', "6"));
+    assert_eq!(Language::EN.happy().value().value(), (&4, &'5', "6"));
 }
 
 i18n!(
@@ -63,10 +63,10 @@ i18n!(
 
 #[test]
 fn nested() {
-    assert_eq!(Language::DE.nested().value().0(), 1);
-    assert_eq!(Language::DE.nested().value().1().0(), 2);
-    assert_eq!(Language::DE.nested().value().1().1().0(), 3);
-    assert_eq!(Language::DE.nested().value().1().1().1().0(), 4);
-    assert_eq!(Language::DE.nested().value().1().1().1().1().0(), 5);
-    assert_eq!(Language::DE.nested().value().1().1().1().1().1(), 6);
+    assert_eq!(Language::DE.nested().value().0(), &1);
+    assert_eq!(Language::DE.nested().value().1().0(), &2);
+    assert_eq!(Language::DE.nested().value().1().1().0(), &3);
+    assert_eq!(Language::DE.nested().value().1().1().1().0(), &4);
+    assert_eq!(Language::DE.nested().value().1().1().1().1().0(), &5);
+    assert_eq!(Language::DE.nested().value().1().1().1().1().1(), &6);
 }

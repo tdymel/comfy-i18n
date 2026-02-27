@@ -48,7 +48,7 @@ i18n!(
         EN: {
             // Fully supports core::fmt specifiers and is additionally 
             // able to interpolate constants and self references.
-            fmt_like_syntax: "Hello, {self.person.name} (self.person.age)! Today is the {num_days:03}th day of the year!",
+            fmt_like_syntax: "Hello, {self.person.name} (root.person.age)! Today is the {num_days:03}th day of the year!",
             person: {
                 name: "Peter",
                 age: 42,
@@ -112,13 +112,13 @@ fn some_component() {
         Language::DE.some_component().person().complicated_localization(42),
         "42 Katzen".to_string()
     );
-    
+
     // Access the localization by path or using the usual t! macro
     // Usage is strongly discouraged and only useful for migration from other libraries
     // This is also behind a feature flag
     assert_eq!(
-        Language::by_path<i32>("DE.some_component.person.age"),
-        t!("DE.some_component.person.age")
+        Language::DE::by_path<i32>("some_component.person.age"),
+        t!("some_component.person.age", context = Language::DE)
     );
 }
 ```
@@ -128,12 +128,12 @@ Comfy I18n trades speed for binary size and compile time.
 It creates specialized structures and functions, which may or may not be optimized away by the compiler.  
 Nevertheless, the binary size and compile time would be bigger compared to a dictionary based approach.
 
-| Crate      | Literal  | Interpolation (2 args) | Interpolation (7 args) |
-| ---------- | -------- | ---------------------- | ---------------------- |
-| comfy-i18n | 0.26 ns  | < 38 - 60 ns ¹         | < 173 ns ¹             |
-| rust-i18n  | 32.63 ns | 128.70 ns              | 370.28 ns              |
+| Crate      | Literal        | Interpolation (2 args) | Interpolation (7 args) |
+| ---------- | -------------- | ---------------------- | ---------------------- |
+| comfy-i18n | 0.4 ns         | >53.18 ns ¹            | >136.82 ns ¹           |
+| rust-i18n  | 18.96 ns       | >47.15 ns              | >84.04 ns              |
 
-> ¹ We use [dfmt](https://github.com/tdymel/dfmt). If we can use a literal template, it uses `format!` under the hood. In addition to this, we do const folding during transpilation and once statically during runtime, to reduce the amount of arguments.
+> ¹ Depending on the complexity. We use [dfmt](https://github.com/tdymel/dfmt). In the future, we will do const folding during transpilation to reduce the amount of arguments to be formatted. Also there is still some room for improvement with dfmt itself.
 
 ### 🚧 [#16](https://github.com/tdymel/comfy-i18n/issues/16): Compile time validation
 Be warned if there are missing translations. Warnings during development and errors during production builds.
@@ -151,7 +151,7 @@ Load source files from a remote source on the fly. During compilation these sour
 This library already largely supports no-std environments. However, this will not be a hard requirement for the releases until all core features have been implemented.
 
 ## License
-This project is licensed under either of
+This project is licensed under either
 
 * [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
   ([LICENSE-APACHE](LICENSE-APACHE))
