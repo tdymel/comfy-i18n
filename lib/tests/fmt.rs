@@ -1,15 +1,14 @@
-use comfy_i18n_macro::{ComfyI18n, i18n};
+use comfy_i18n_macro::{i18n, i18n_init};
 
-#[derive(ComfyI18n)]
-pub enum Language {
+i18n_init!(
     #[fallback]
     DE,
     EN,
-}
+);
 
 i18n!(
     name: Happy,
-    key: crate::Language,
+    key: crate::I18n,
     translations: {
         DE: {
             value: "Hallo, {world}!",
@@ -24,14 +23,14 @@ i18n!(
 
 #[test]
 fn happy() {
-    assert_eq!(Language::DE.happy().value(&"Welt"), "Hallo, Welt!");
+    assert_eq!(I18n::DE.happy().value(&"Welt"), "Hallo, Welt!");
 
-    assert_eq!(Language::EN.happy().value(&"World"), "Hello, World!");
+    assert_eq!(I18n::EN.happy().value(&"World"), "Hello, World!");
 }
 
 i18n!(
     name: FallbackTest,
-    key: crate::Language,
+    key: crate::I18n,
     translations: {
         DE: {
             value: "Hallo, {world}!",
@@ -41,23 +40,20 @@ i18n!(
 
 #[test]
 fn fallback() {
-    assert_eq!(Language::DE.fallback_test().value(&"Welt"), "Hallo, Welt!");
+    assert_eq!(I18n::DE.fallback_test().value(&"Welt"), "Hallo, Welt!");
 
-    assert_eq!(
-        Language::EN.fallback_test().value(&"World"),
-        "Hallo, World!"
-    );
+    assert_eq!(I18n::EN.fallback_test().value(&"World"), "Hallo, World!");
 }
 
 #[test]
 fn fmt2() {
-    assert_eq!(Language::DE.happy().fmt2(&"Test1", &"Test2"), "Test1 Test2");
+    assert_eq!(I18n::DE.happy().fmt2(&"Test1", &"Test2"), "Test1 Test2");
 }
 
 #[test]
 fn fmt7() {
     assert_eq!(
-        Language::DE.happy().fmt7(
+        I18n::DE.happy().fmt7(
             &"Test1", &"Test2", &"Test3", &"Test4", &"Test5", &"Test6", &"Test7"
         ),
         "Test1 Test2 Test3 Test4 Test5 Test6 Test7"
@@ -66,7 +62,7 @@ fn fmt7() {
 
 i18n!(
     name: SelfReferences,
-    key: crate::Language,
+    key: crate::I18n,
     translations: {
         DE: {
             nested: {
@@ -80,13 +76,7 @@ i18n!(
 
 #[test]
 fn self_ref() {
-    assert_eq!(
-        Language::DE.self_references().nested().value(),
-        "Hallo, Welt!"
-    );
+    assert_eq!(I18n::DE.self_references().nested().value(), "Hallo, Welt!");
 
-    assert_eq!(
-        Language::DE.self_references().nested().value2(),
-        "Hallo, Welt!"
-    );
+    assert_eq!(I18n::DE.self_references().nested().value2(), "Hallo, Welt!");
 }

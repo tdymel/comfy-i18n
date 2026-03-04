@@ -1,15 +1,14 @@
-use comfy_i18n_macro::{ComfyI18n, i18n};
+use comfy_i18n_macro::{i18n, i18n_init};
 
-#[derive(ComfyI18n)]
-pub enum Language {
+i18n_init!(
     #[fallback]
     DE,
     EN,
-}
+);
 
 i18n!(
     name: Happy,
-    key: crate::Language,
+    key: crate::I18n,
     translations: {
         DE: {
             strct: {
@@ -26,11 +25,11 @@ i18n!(
 
 #[test]
 fn happy() {
-    assert_eq!(Language::DE.happy().strct().tupl().0(), &1);
-    assert_eq!(Language::DE.happy().strct().tupl().1().a()[0].0(), &1);
-    assert_eq!(Language::DE.happy().strct().tupl().1().a()[0].1().b(), &'C');
+    assert_eq!(I18n::DE.happy().strct().tupl().0(), &1);
+    assert_eq!(I18n::DE.happy().strct().tupl().1().a()[0].0(), &1);
+    assert_eq!(I18n::DE.happy().strct().tupl().1().a()[0].1().b(), &'C');
     assert_eq!(
-        Language::DE.happy().strct().tupl().1().a()[0].2().value(),
+        I18n::DE.happy().strct().tupl().1().a()[0].2().value(),
         &[1, 2, 3]
     );
 }

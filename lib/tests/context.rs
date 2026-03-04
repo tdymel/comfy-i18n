@@ -1,27 +1,23 @@
-use comfy_i18n_macro::ComfyI18n;
+use comfy_i18n_macro::i18n_init;
 
-#[derive(ComfyI18n, Debug)]
-pub enum Language {
+i18n_init!(
     #[fallback]
     DE,
     EN,
-}
+);
 
 #[test]
 fn context_values() {
-    assert_eq!(Language::DE.context().fallback, true);
-    assert_eq!(Language::EN.context().fallback, false);
+    assert_eq!(I18n::DE.context().fallback, true);
+    assert_eq!(I18n::EN.context().fallback, false);
 }
 
 #[test]
 fn amount() {
-    assert_eq!(Language::amount(), 2);
+    assert_eq!(I18n::amount(), 2);
 }
 
 #[test]
 fn fallback() {
-    assert_eq!(
-        Language::DE.fallback([Some(Language::EN), None]),
-        Language::EN
-    )
+    assert_eq!(I18n::DE.fallback([Some(I18n::EN), None]), I18n::EN)
 }

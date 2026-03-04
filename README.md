@@ -15,18 +15,17 @@ Comfy I18n aims to have the most ergnomical and intuitive API design possible.
 This is a small showcase of the API. Please refer to the examples in the documentation for a more detailed overview.
 
 ```rust
-// Must be defined in the crate root
-#[derive(ComfyI18n)]
-pub enum Language {
+// Must be used in the crate root
+i18n_init!(
     EN,
     #[fallback]
     DE,
     RU
-}
+);
 
 i18n!(
     name: Animals,
-    key: crate::Language,
+    key: crate::I18n,
     translations: {
         EN: {
             cat: {
@@ -45,7 +44,7 @@ i18n!(
 
 i18n!(
     name: SomeComponent,
-    key: crate::Language,
+    key: crate::I18n,
     translations: {
         EN: {
             // Fully supports core::fmt specifiers and is additionally 
@@ -56,7 +55,7 @@ i18n!(
                 age: 42,
                 pronouns: ["he", "him"],
                 // You can also use any constant, as long as you hint the type
-                favorite_animal: Language::DE.animals().cat().one() as &'static str,
+                favorite_animal: I18n::DE.animals().cat().one() as &'static str,
             },
             arbitary_nesting: (1, (2, [{a: 42}; 5]))
         },
@@ -75,15 +74,15 @@ i18n!(
 impl some_component::person::Person {
     pub fn complicated_localization(&self, amount: usize) -> String {
         match self.comfy_i18n_context {
-            Language::DE => match amount {
-                0 => format!("Keine {}", Language::DE.animals().cat().many()),
-                1 => format!("Eine {}", Language::DE.animals().cat().one()),
-                num_cats => format!("{} {}", num_cats, Language::DE.animals().cat().many())
+            I18n::DE => match amount {
+                0 => format!("Keine {}", I18n::DE.animals().cat().many()),
+                1 => format!("Eine {}", I18n::DE.animals().cat().one()),
+                num_cats => format!("{} {}", num_cats, I18n::DE.animals().cat().many())
             },
             _ => match amount {
-                0 => format!("No {}", Language::EN.animals().cat().many()),
-                1 => format!("A {}", Language::EN.animals().cat().one()),
-                num_cats => format!("{} {}", num_cats, Language::EN.animals().cat().many())
+                0 => format!("No {}", I18n::EN.animals().cat().many()),
+                1 => format!("A {}", I18n::EN.animals().cat().one()),
+                num_cats => format!("{} {}", num_cats, I18n::EN.animals().cat().many())
             }
         }
     }
@@ -93,25 +92,25 @@ fn some_component() {
     // The language enum value can easily be passed as part of the context of any framework.
 
     assert_eq!(
-        Language::EN.some_component().fmt_like_syntax(&83)
+        I18n::EN.some_component().fmt_like_syntax(&83)
         "Hello, Peter (42)! Today is the 083th day of the year!"
     );
 
     // Falls back to the english format string, using the german values for person
     assert_eq!(
-        Language::DE.some_component().fmt_like_syntax(&83),
+        I18n::DE.some_component().fmt_like_syntax(&83),
         "Hello, Anna (21)! Today is the 083th day of the year!"
     );
 
     // Falls back to english, as its not specified in the fallback language
     assert_eq!(
-        Language::RU.some_component().person().pronouns(),
+        I18n::RU.some_component().person().pronouns(),
         ["he", "him"]
     );
 
     // Then call your custom function like this
     assert_eq!(
-        Language::DE.some_component().person().complicated_localization(42),
+        I18n::DE.some_component().person().complicated_localization(42),
         "42 Katzen".to_string()
     );
 
@@ -119,8 +118,8 @@ fn some_component() {
     // Usage is strongly discouraged and only useful for migration from other libraries
     // This can be opt out from using a feature flag.
     assert_eq!(
-        Language::DE::by_path<i32>("some_component.person.age"),
-        t!("some_component.person.age", context = Language::DE)
+        I18n::DE::by_path<i32>("some_component.person.age"),
+        t!("some_component.person.age", context = I18n::DE)
     );
 }
 ```

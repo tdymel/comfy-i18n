@@ -11,6 +11,7 @@ pub struct ComfyI18n {
     pub variants: Vec<Variant>,
 }
 
+#[derive(Clone)]
 pub struct Variant {
     pub name: Ident,
     pub fallback: bool,

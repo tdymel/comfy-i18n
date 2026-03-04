@@ -1,15 +1,14 @@
-use comfy_i18n_macro::{ComfyI18n, i18n};
+use comfy_i18n_macro::{i18n, i18n_init};
 
-#[derive(ComfyI18n)]
-pub enum Language {
+i18n_init!(
     #[fallback]
     DE,
     EN,
-}
+);
 
 i18n!(
     name: Happy,
-    key: crate::Language,
+    key: crate::I18n,
     translations: {
         DE: {
             value: 'A',
@@ -22,14 +21,14 @@ i18n!(
 
 #[test]
 fn happy() {
-    assert_eq!(Language::DE.happy().value(), &'A');
+    assert_eq!(I18n::DE.happy().value(), &'A');
 
-    assert_eq!(Language::EN.happy().value(), &'B');
+    assert_eq!(I18n::EN.happy().value(), &'B');
 }
 
 i18n!(
     name: FallbackTest,
-    key: crate::Language,
+    key: crate::I18n,
     translations: {
         DE: {
             value: 'A',
@@ -40,7 +39,7 @@ i18n!(
 #[test]
 fn fallback() {
     assert_eq!(
-        Language::DE.fallback_test().value(),
-        Language::EN.fallback_test().value()
+        I18n::DE.fallback_test().value(),
+        I18n::EN.fallback_test().value()
     );
 }
