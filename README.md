@@ -25,7 +25,6 @@ i18n_init!(
 
 i18n!(
     name: Animals,
-    key: crate::I18n,
     translations: {
         EN: {
             cat: {
@@ -44,7 +43,6 @@ i18n!(
 
 i18n!(
     name: SomeComponent,
-    key: crate::I18n,
     translations: {
         EN: {
             // Fully supports core::fmt specifiers and is additionally 

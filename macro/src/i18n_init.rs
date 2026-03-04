@@ -128,7 +128,7 @@ impl ToTokens for I18nInit {
                 #(#variants),*
             }
         });
-        
+
         let context_name_snake_case =
             NameSnakeCase::from(format!("{}_context", self.name_snake_case()));
         let mut generator = RustGenerator::new(context_name_snake_case.clone());

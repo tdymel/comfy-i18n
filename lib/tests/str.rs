@@ -8,7 +8,6 @@ i18n_init!(
 
 i18n!(
     name: Happy,
-    key: crate::I18n,
     translations: {
         DE: {
             str_value: "DE VALUE",
@@ -27,7 +26,6 @@ fn happy() {
 
 i18n!(
     name: FallbackTest,
-    key: crate::I18n,
     translations: {
         DE: {
             str_value: "DE VALUE",
@@ -45,7 +43,6 @@ fn fallback() {
 
 i18n!(
     name: Cast,
-    key: crate::I18n,
     translations: {
         DE: {
             casted_value: crate::I18n::DE.happy().str_value() as &'static str,

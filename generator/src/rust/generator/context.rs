@@ -6,14 +6,13 @@ use crate::{generator::Path, shared::NameSnakeCase};
 
 pub struct Context {
     root_name: NameSnakeCase,
-    context_key: Path,
     localizations: Vec<Ast>,
     id_to_path: HashMap<NodeId, comfy_i18n_ast::Path>,
     path_to_id: HashMap<comfy_i18n_ast::Path, NodeId>,
 }
 
 impl Context {
-    pub fn new(localization_tree: Ast, root_name: NameSnakeCase, context_key: Path) -> Self {
+    pub fn new(localization_tree: Ast, root_name: NameSnakeCase) -> Self {
         let localizations = localization_tree
             .children_into()
             .expect("Root node must contain children")
@@ -41,7 +40,6 @@ impl Context {
 
         Self {
             root_name,
-            context_key,
             localizations,
             id_to_path,
             path_to_id,
@@ -77,8 +75,10 @@ impl Context {
             .unwrap()
     }
 
-    pub fn context_key(&self) -> &Path {
-        &self.context_key
+    pub fn context_key(&self) -> Path {
+        Path::root()
+            .add_mod("crate".into())
+            .set_ty("I18n".to_string().into())
     }
 
     pub fn get(&self, node_id: &NodeId) -> &Ast {

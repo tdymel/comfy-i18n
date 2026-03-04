@@ -8,7 +8,6 @@ i18n_init!(
 
 i18n!(
     name: Happy,
-    key: crate::I18n,
     translations: {
         DE: {
             value: "Hallo, {world}!",
@@ -30,7 +29,6 @@ fn happy() {
 
 i18n!(
     name: FallbackTest,
-    key: crate::I18n,
     translations: {
         DE: {
             value: "Hallo, {world}!",
@@ -62,7 +60,6 @@ fn fmt7() {
 
 i18n!(
     name: SelfReferences,
-    key: crate::I18n,
     translations: {
         DE: {
             nested: {

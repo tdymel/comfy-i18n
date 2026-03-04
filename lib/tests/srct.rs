@@ -8,7 +8,6 @@ i18n_init!(
 
 i18n!(
     name: Happy,
-    key: crate::I18n,
     translations: {
         DE: {
             value: {
@@ -32,7 +31,6 @@ fn happy() {
 
 i18n!(
     name: FallbackTest,
-    key: crate::I18n,
     translations: {
         DE: {
             value: {
@@ -52,7 +50,6 @@ fn fallback() {
 
 i18n!(
     name: Nested,
-    key: crate::I18n,
     translations: {
         DE: {
             value: {

@@ -21,35 +21,15 @@ impl Parse for I18n {
         let name_value = input.parse::<Ident>()?;
         input.parse::<syn::token::Comma>()?;
 
-        let key_key = input.parse::<Ident>()?;
-        assert_eq!(key_key.to_string().as_str(), "key");
-        input.parse::<syn::token::Colon>()?;
-        let key_value = input.parse::<syn::Path>()?;
-        input.parse::<syn::token::Comma>()?;
-
         // This is everything but robust!
         let translations = input
             .parse::<proc_macro2::TokenStream>()?
             .parse_field()
             .unwrap();
 
-        let context_key =
-            key_value
-                .segments
-                .iter()
-                .enumerate()
-                .fold(Path::root(), |acc, (index, segment)| {
-                    if index == key_value.segments.len() - 1 {
-                        acc.set_ty(segment.ident.to_string().into())
-                    } else {
-                        acc.add_mod(segment.ident.to_string().into())
-                    }
-                });
-
         let context = Context::new(
             Ast::from(translations),
             NamePascalCase::from(name_value.to_string()).to_snake_case(),
-            context_key,
         );
 
         Ok(Self {

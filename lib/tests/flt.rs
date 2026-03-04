@@ -8,7 +8,6 @@ i18n_init!(
 
 i18n!(
     name: Happy,
-    key: crate::I18n,
     translations: {
         DE: {
             f32_value: 3.14f32,
@@ -32,7 +31,6 @@ fn happy() {
 
 i18n!(
     name: FallbackTest,
-    key: crate::I18n,
     translations: {
         DE: {
             f32_value: 3.14f32,

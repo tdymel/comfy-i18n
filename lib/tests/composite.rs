@@ -8,7 +8,6 @@ i18n_init!(
 
 i18n!(
     name: Happy,
-    key: crate::I18n,
     translations: {
         DE: {
             strct: {

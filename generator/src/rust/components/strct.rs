@@ -26,7 +26,9 @@ pub fn strct(
         node.identifier.clone().into()
     };
 
-    let mut fields: Vec<Field> = children.values().map(|field| {
+    let mut fields: Vec<Field> = children
+        .values()
+        .map(|field| {
             Field::optional(
                 field.identifier.clone().into(),
                 RustType::new(field, context, &path),
@@ -59,7 +61,7 @@ pub fn strct(
             fallback_fn(
                 &name,
                 &RustType::new(ast, context, &path),
-                context.context_key(),
+                &context.context_key(),
                 absolute_path.to_access_path().to_basic_token_stream(),
                 quote! { #name.as_ref().unwrap() },
                 &context.available_context_variants(&ast.id).collect(),

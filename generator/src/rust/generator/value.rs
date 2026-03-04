@@ -199,10 +199,7 @@ impl RustValue {
                                 //     value: Box::new(value),
                                 //     amount: *list_size,
                                 // }
-                                RustValue::List(
-                                    std::iter::repeat_n(value, *list_size)
-                                        .collect(),
-                                )
+                                RustValue::List(std::iter::repeat_n(value, *list_size).collect())
                             } else {
                                 RustValue::List(values.into_iter().map(|(_, v)| v).collect())
                             },
