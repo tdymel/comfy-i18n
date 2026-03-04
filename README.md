@@ -36,7 +36,8 @@ i18n!(
             one: "Katze",
             many: "Katzen"
         },
-    }
+    },
+    RU: "path/relative/to/root.comfy"
 )
 
 i18n!(
@@ -140,8 +141,8 @@ For formatted strings [dfmt](https://github.com/tdymel/dfmt) is used under the h
 ### 🚧 [#16](https://github.com/tdymel/comfy-i18n/issues/16): Compile time validation
 Be warned if there are missing translations. Warnings during development and errors during production builds.
 
-### 🚧 [#5](https://github.com/tdymel/comfy-i18n/issues/5): Source file support
-Load localizations from different kind of source file formats, e.g. TOML, JSON, Fluent, Gettext or the custom comfy format.
+### 🚧 [#5](https://github.com/tdymel/comfy-i18n/issues/5): Different source file formats
+Load localizations from different kind of source file formats other than the comfy format, e.g. TOML, JSON, Fluent or Gettext
 
 ### 🚧 [#18](https://github.com/tdymel/comfy-i18n/issues/18): Hot reload translations from source files
 Source files are watched for changes during development and hot reloaded if changes occur.

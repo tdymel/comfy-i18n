@@ -1,3 +1,5 @@
+use std::io::Read;
+
 use comfy_i18n_ast::{Ast, CompositeValue, Identifier, LiteralValue, NodeValue, StringValue};
 use comfy_i18n_generator::{
     components::{Format, Implementation, Initialization, array_wrapper, strct, tuple_wrapper},
@@ -18,13 +20,43 @@ impl Parse for I18n {
         let name = input.parse::<Ident>()?;
         input.parse::<syn::token::Comma>()?;
 
+        let cargo_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is empty");
+        let current_dir = std::path::PathBuf::from(cargo_dir);
+
         let localizations = input
             .parse::<proc_macro2::TokenStream>()?
             .parse_fields()
             .unwrap()
             .into_iter()
             .map(Ast::from)
-            .collect();
+            .map(|ast| {
+                if let NodeValue::Literal(LiteralValue::String(StringValue::Literal(path))) =
+                    &ast.value
+                {
+                    let path = current_dir.join(path);
+                    if path.is_file() {
+                        // TODO: Check source format and use correct parser
+                        // TODO: Error handling
+                        let mut file = std::fs::File::open(path).unwrap();
+                        let mut contents = String::new();
+                        file.read_to_string(&mut contents).unwrap();
+                        let ts_content = contents.to_basic_token_stream();
+                        let id = ast.identifier.to_string().to_basic_token_stream();
+                        return quote! {
+                            #id: {
+                                #ts_content
+                            }
+                        }.parse_field().unwrap().into();
+                    } else if path.is_dir() {
+                        todo!()
+                    } else {
+                        panic!("Path points to neither file not folder");
+                    }
+                }
+
+                ast
+            })
+            .collect::<Vec<_>>();
 
         let context = Context::new(localizations, name.to_string().into());
 
