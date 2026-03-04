@@ -189,4 +189,8 @@ impl Ast {
             .map(|node| (node.path(&tree), node))
             .collect()
     }
+
+    pub fn size(&self) -> usize {
+        self.traverse().count()
+    }
 }

@@ -59,10 +59,10 @@ impl Context {
     }
 
     pub fn reference_tree(&self) -> &Ast {
-        // TODO: Select main tree properly!
+        // TODO: Merge trees for the future
         self.localizations
             .iter()
-            .find(|it| it.identifier.to_string() == "DE")
+            .max_by_key(|localization| localization.size())
             .unwrap()
     }
 
