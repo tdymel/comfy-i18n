@@ -24,7 +24,7 @@ i18n_init!(
 );
 
 i18n!(
-    Animals,
+    animals,
     EN: {
         cat: {
             one: "Cat",
@@ -40,7 +40,7 @@ i18n!(
 )
 
 i18n!(
-    SomeComponent,
+    some_component,
     EN: {
         // Fully supports core::fmt specifiers and is additionally 
         // able to interpolate constants and self references.
