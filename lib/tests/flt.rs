@@ -7,7 +7,7 @@ i18n_init!(
 );
 
 i18n!(
-    Happy,
+    happy,
     DE: {
         f32_value: 3.14f32,
         f64_value: 3.14f32,
@@ -28,7 +28,7 @@ fn happy() {
 }
 
 i18n!(
-    FallbackTest,
+    fallback_test,
     DE: {
         f32_value: 3.14f32,
     },

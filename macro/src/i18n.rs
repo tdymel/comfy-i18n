@@ -2,7 +2,7 @@ use comfy_i18n_ast::{Ast, CompositeValue, Identifier, LiteralValue, NodeValue, S
 use comfy_i18n_generator::{
     components::{Format, Implementation, Initialization, array_wrapper, strct, tuple_wrapper},
     generator::{Context, Path, RustGenerator, RustValue},
-    shared::{NamePascalCase, NameSnakeCase, ToBasicTokenStream},
+    shared::{NameSnakeCase, ToBasicTokenStream},
 };
 use comfy_i18n_parser::Parser;
 use quote::{ToTokens, quote};
@@ -26,10 +26,7 @@ impl Parse for I18n {
             .map(Ast::from)
             .collect();
 
-        let context = Context::new(
-            localizations,
-            NamePascalCase::from(name.to_string()).to_snake_case(),
-        );
+        let context = Context::new(localizations, name.to_string().into());
 
         Ok(Self { name, context })
     }
@@ -37,7 +34,7 @@ impl Parse for I18n {
 
 impl I18n {
     pub fn name_snake_case(&self) -> NameSnakeCase {
-        NamePascalCase::from(self.name.to_string()).to_snake_case()
+        self.name.to_string().into()
     }
 
     fn context_impl(&self) -> Implementation {

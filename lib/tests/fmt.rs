@@ -7,7 +7,7 @@ i18n_init!(
 );
 
 i18n!(
-    Happy,
+    happy,
     DE: {
         value: "Hallo, {world}!",
         fmt2: "{arg1} {arg2}",
@@ -26,7 +26,7 @@ fn happy() {
 }
 
 i18n!(
-    FallbackTest,
+    fallback_test,
     DE: {
         value: "Hallo, {world}!",
     },
@@ -55,7 +55,7 @@ fn fmt7() {
 }
 
 i18n!(
-    SelfReferences,
+    self_references,
     DE: {
         nested: {
             value: "Hallo, {self.world}!",

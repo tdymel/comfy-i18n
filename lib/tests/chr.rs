@@ -7,7 +7,7 @@ i18n_init!(
 );
 
 i18n!(
-    Happy,
+    happy,
     DE: {
         value: 'A',
     },
@@ -24,7 +24,7 @@ fn happy() {
 }
 
 i18n!(
-    FallbackTest,
+    fallback_test,
     DE: {
         value: 'A',
     },

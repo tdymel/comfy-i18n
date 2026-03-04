@@ -12,7 +12,7 @@ i18n_init!(
 );
 
 i18n!(
-    Benchmark,
+    benchmark,
     DE: {
         simple_value: "DE simple value",
         simple_value_flt: 3.14,

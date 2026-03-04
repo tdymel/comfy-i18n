@@ -7,7 +7,7 @@ i18n_init!(
 );
 
 i18n!(
-    Happy,
+    happy,
     DE: {
         i8_value: 1i8,
         i16_value: 1i16,
@@ -64,7 +64,7 @@ fn happy() {
 }
 
 i18n!(
-    FallbackTest,
+    fallback_test,
     DE: {
         i8_value: 1i8,
     },

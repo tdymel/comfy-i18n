@@ -7,7 +7,7 @@ i18n_init!(
 );
 
 i18n!(
-    Happy,
+    happy,
     DE: {
         list1: [1; 10],
         list2: [1,2,3,4],
@@ -28,7 +28,7 @@ fn happy() {
 }
 
 i18n!(
-    FallbackTest,
+    fallback_test,
     DE: {
         list1: [1; 10],
     },
@@ -43,7 +43,7 @@ fn fallback() {
 }
 
 i18n!(
-    Nested,
+    nested,
     DE: {
         value: [[[2; 2], [3; 2]]; 1],
     },

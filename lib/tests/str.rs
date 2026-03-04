@@ -7,7 +7,7 @@ i18n_init!(
 );
 
 i18n!(
-    Happy,
+    happy,
     DE: {
         str_value: "DE VALUE",
     },
@@ -23,7 +23,7 @@ fn happy() {
 }
 
 i18n!(
-    FallbackTest,
+    fallback_test,
     DE: {
         str_value: "DE VALUE",
     },
@@ -38,7 +38,7 @@ fn fallback() {
 }
 
 i18n!(
-    Cast,
+    cast,
     DE: {
         casted_value: crate::I18n::DE.happy().str_value() as &'static str,
     },
