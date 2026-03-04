@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use comfy_i18n_ast::{Ast, Identifier, NodeId};
 
-use crate::{generator::Path, shared::NameSnakeCase};
+use crate::{rust_generator::Path, shared::NameSnakeCase};
 
 pub struct Context {
     root_name: NameSnakeCase,

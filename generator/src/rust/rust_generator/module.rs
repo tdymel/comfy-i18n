@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use quote::{ToTokens, quote};
 
-use crate::{generator::Path, rust::shared::NameSnakeCase};
+use crate::{rust::shared::NameSnakeCase, rust_generator::Path};
 
 pub struct Module {
     name: NameSnakeCase,

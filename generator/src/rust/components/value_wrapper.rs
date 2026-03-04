@@ -2,7 +2,7 @@ use quote::{ToTokens, quote};
 
 use crate::{
     components::{fallback_fn, hackfn},
-    generator::{Path, RustType},
+    rust_generator::{Path, RustType},
     shared::ToBasicTokenStream,
 };
 

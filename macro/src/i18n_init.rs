@@ -1,5 +1,5 @@
 use comfy_i18n_generator::components::{Field, Implementation, Initialization, Struct, UsePath};
-use comfy_i18n_generator::generator::{Path, RustGenerator, RustType, RustValue};
+use comfy_i18n_generator::rust_generator::{Path, RustGenerator, RustType, RustValue};
 use comfy_i18n_generator::shared::{NamePascalCase, NameSnakeCase, ToBasicTokenStream};
 use quote::{ToTokens, quote};
 use syn::parse::{Parse, ParseStream};
@@ -163,8 +163,9 @@ impl ToTokens for I18nInit {
                 .unwrap_or_else(|| self.variants.first().unwrap().name.to_string())
                 .to_basic_token_stream();
             quote! {
-                pub static _COMFY_I18N_DEFAULT_CONTEXT: std::sync::LazyLock<std::sync::RwLock<#name>> = 
-                    std::sync::LazyLock::new(|| std::sync::RwLock::new(#name::#default_variant));
+                pub static _COMFY_I18N_DEFAULT_CONTEXT: std::sync::LazyLock<
+                    std::sync::RwLock<#name>
+                > = std::sync::LazyLock::new(|| std::sync::RwLock::new(#name::#default_variant));
 
                 #[macro_export]
                 macro_rules! _comfy_i18n_default_context {
@@ -186,7 +187,7 @@ impl ToTokens for I18nInit {
                 impl #name {
                     pub fn set_default_context(context: Self) {
                         comfy_i18n_set_default_context!(context);
-                    } 
+                    }
 
                     pub fn set_as_default_context(&self) {
                         comfy_i18n_set_default_context!(self);

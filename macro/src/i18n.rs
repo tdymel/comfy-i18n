@@ -1,7 +1,7 @@
 use comfy_i18n_ast::{Ast, CompositeValue, Identifier, LiteralValue, NodeValue, StringValue};
 use comfy_i18n_generator::{
     components::{Format, Implementation, Initialization, array_wrapper, strct, tuple_wrapper},
-    generator::{Context, Path, RustGenerator, RustValue},
+    rust_generator::{Context, Path, RustGenerator, RustValue},
     shared::{NameSnakeCase, ToBasicTokenStream},
 };
 use comfy_i18n_parser::Parser;

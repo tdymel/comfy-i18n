@@ -1,11 +1,11 @@
 use quote::{ToTokens, quote};
 
 use crate::{
-    generator::Path,
     rust::{
-        generator::{RustValue, VariableType},
+        rust_generator::{RustValue, VariableType},
         shared::NameSnakeCase,
     },
+    rust_generator::Path,
 };
 
 #[derive(Debug)]

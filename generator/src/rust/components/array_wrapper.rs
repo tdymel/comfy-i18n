@@ -4,7 +4,7 @@ use comfy_i18n_ast::{Ast, Identifier};
 use quote::quote;
 
 use crate::{
-    generator::{Context, RustType},
+    rust_generator::{Context, RustType},
     shared::NamePascalCase,
 };
 

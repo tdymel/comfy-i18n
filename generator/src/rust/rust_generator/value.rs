@@ -5,8 +5,8 @@ use comfy_i18n_ast::{
 use quote::{ToTokens, quote};
 
 use crate::{
-    generator::{Context, Path},
-    rust::{generator::VariableType, shared::NameSnakeCase},
+    rust::{rust_generator::VariableType, shared::NameSnakeCase},
+    rust_generator::{Context, Path},
     shared::ToBasicTokenStream,
 };
 

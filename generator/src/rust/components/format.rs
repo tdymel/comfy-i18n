@@ -3,8 +3,8 @@ use quote::{ToTokens, quote};
 
 use crate::{
     components::hackfn,
-    generator::Path,
     rust::shared::{NamePascalCase, ToBasicTokenStream},
+    rust_generator::Path,
     shared::NameSnakeCase,
 };
 
@@ -147,7 +147,6 @@ impl ToTokens for Format {
                 pub fn new(comfy_i18n_context: #context_key, template: comfy_i18n::macro_use::Template) -> Self {
                     Self { comfy_i18n_context, template }
                 }
- 
                 // TODO: Handle const arguments
                 // TODO: Apparently specifying these arguments here in the 
                 // place has a singificant performance overhead for the formatting.

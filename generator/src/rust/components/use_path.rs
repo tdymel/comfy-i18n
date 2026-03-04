@@ -1,6 +1,6 @@
 use quote::{ToTokens, quote};
 
-use crate::generator::Path;
+use crate::rust_generator::Path;
 
 pub struct UsePath(Path);
 

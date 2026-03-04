@@ -5,7 +5,7 @@ use quote::quote;
 
 use crate::{
     components::ValueWrapper,
-    generator::{Context, RustType},
+    rust_generator::{Context, RustType},
     shared::{NameSnakeCase, ToBasicTokenStream},
 };
 

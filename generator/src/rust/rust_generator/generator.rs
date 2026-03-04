@@ -1,8 +1,8 @@
 use quote::ToTokens;
 
 use crate::{
-    generator::Path,
-    rust::{generator::module::Module, shared::NameSnakeCase},
+    rust::{rust_generator::module::Module, shared::NameSnakeCase},
+    rust_generator::Path,
 };
 
 pub struct RustGenerator {

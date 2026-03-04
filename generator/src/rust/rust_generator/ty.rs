@@ -4,8 +4,8 @@ use comfy_i18n_ast::{
 use quote::{ToTokens, quote};
 
 use crate::{
-    generator::{Context, Path},
     rust::shared::ToBasicTokenStream,
+    rust_generator::{Context, Path},
 };
 
 #[derive(Debug, Clone)]

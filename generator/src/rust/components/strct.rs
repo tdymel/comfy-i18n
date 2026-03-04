@@ -5,11 +5,11 @@ use quote::{ToTokens, quote};
 
 use crate::{
     components::fallback_fn,
-    generator::Context,
     rust::{
-        generator::RustType,
+        rust_generator::RustType,
         shared::{NamePascalCase, NameSnakeCase},
     },
+    rust_generator::Context,
     shared::ToBasicTokenStream,
 };
 

@@ -1,3 +1,3 @@
 pub mod components;
-pub mod generator;
+pub mod rust_generator;
 pub mod shared;

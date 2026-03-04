@@ -1,7 +1,7 @@
 use quote::quote;
 
 use crate::{
-    generator::{Path, RustType},
+    rust_generator::{Path, RustType},
     shared::{NameSnakeCase, ToBasicTokenStream},
 };
 
