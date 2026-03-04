@@ -1,8 +1,3 @@
-/*
-TODO:
-* Tests
-*/
-
 mod ast;
 mod identifier;
 mod node_id;

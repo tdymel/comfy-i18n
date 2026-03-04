@@ -126,7 +126,6 @@ impl ToTokens for T {
             .into_iter()
             .map(|kv| {
                 let value = &kv.value;
-                // TODO: I need to know what kind of type it is... => We probably have to use some sort of struct
                 quote! { &#value }
             })
             .collect::<Vec<_>>();
