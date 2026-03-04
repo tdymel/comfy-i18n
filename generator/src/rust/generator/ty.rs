@@ -13,17 +13,9 @@ pub enum RustType {
     String,
     Char,
     Bool,
-    Float {
-        bits: u8,
-    },
-    Integer {
-        unsigned: bool,
-        bits: u8,
-    },
-    List {
-        ty: Box<RustType>,
-        amount: Option<usize>,
-    },
+    Float { bits: u8 },
+    Integer { unsigned: bool, bits: u8 },
+    List(Path),
     Tuple(Path),
     Format(Path),
     Struct(Path),
@@ -55,16 +47,17 @@ impl ToTokens for RustType {
                 }
                 _ => unreachable!(),
             },
-            RustType::List { ty: rust_type, .. } => {
-                // TODO: Requires us to check if the children are Copy or not
-                // if let Some(amount) = amount {
-                //     quote! { [#rust_type; #amount]}
-                // } else {
-                quote! {Vec<#rust_type>}
-                // }
-            }
+            // RustType::List { ty: rust_type, .. } => {
+            //     // TODO: Requires us to check if the children are Copy or not
+            //     // if let Some(amount) = amount {
+            //     //     quote! { [#rust_type; #amount]}
+            //     // } else {
+            //     quote! {Vec<#rust_type>}
+            //     // }
+            // }
             RustType::Format(path)
             | RustType::Tuple(path)
+            | RustType::List(path)
             | RustType::Struct(path)
             | RustType::Other(path) => path.to_token_stream(),
             RustType::Cast(ty) => ty.clone(),
@@ -86,17 +79,22 @@ impl RustType {
                         .relative_path_to_root(&node.id)
                         .relative_to(relative_root),
                 ),
-                CompositeValue::List { amount: list_size } => {
-                    let ty = Self::new(
-                        children.get(&Identifier::ArrayIndex(0)).unwrap(),
-                        context,
-                        relative_root,
-                    );
-                    RustType::List {
-                        ty: Box::new(ty),
-                        amount: Some(*list_size),
-                    }
-                }
+                CompositeValue::List { .. } => Self::List(
+                    context
+                        .relative_path_to_root(&node.id)
+                        .relative_to(relative_root),
+                ),
+                // CompositeValue::List { amount: list_size } => {
+                //     let ty = Self::new(
+                //         children.get(&Identifier::ArrayIndex(0)).unwrap(),
+                //         context,
+                //         relative_root,
+                //     );
+                //     RustType::List {
+                //         ty: Box::new(ty),
+                //         amount: Some(*list_size),
+                //     }
+                // }
             },
             NodeValue::Literal(literal_value) => match literal_value {
                 LiteralValue::String(string_value) => match string_value {

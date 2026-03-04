@@ -45,11 +45,7 @@ impl ToTokens for ValueWrapper {
             &"_self".into(),
             &Vec::new(),
             &Vec::new(),
-            if let RustType::String = ty {
-                quote! { #ty }
-            } else {
-                quote! { &'static #ty}
-            },
+            quote! { &'static #ty},
         );
 
         let fallback_fn = fallback_fn(
@@ -60,6 +56,14 @@ impl ToTokens for ValueWrapper {
             "value.as_ref().unwrap()".to_basic_token_stream(),
             &self.available_variants,
         );
+
+        let by_path_return_value = match &self.ty {
+            // TODO: Format?!
+            RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
+                quote! { self._self().by_path(path) }
+            }
+            _ => quote! { self._self() },
+        };
 
         tokens.extend(quote! {
             #[derive(Clone)]
@@ -74,6 +78,13 @@ impl ToTokens for ValueWrapper {
                 }
 
                 #fallback_fn
+
+                pub fn by_path(
+                    &'static self,
+                    path: std::collections::VecDeque<String>,
+                ) -> &'static (dyn std::any::Any + Sync) {
+                    #by_path_return_value
+                }
             }
 
             #hackfn

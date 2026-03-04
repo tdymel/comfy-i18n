@@ -52,11 +52,7 @@ pub fn tuple_wrapper(
     let tys_w_o_option = tys
         .iter()
         .map(|ty| {
-            if let RustType::String = ty {
-                quote! { #ty }
-            } else {
-                quote! { &'static #ty }
-            }
+            quote! { &'static #ty }
         })
         .collect::<Vec<_>>();
 
@@ -88,6 +84,14 @@ pub fn tuple_wrapper(
         })
         .collect::<Vec<_>>();
 
+    let by_path_match_arms = tys
+        .iter()
+        .enumerate()
+        .map(|(index, _)| {
+            format!("\"{0}\" => self.value.{0}.by_path(path)", index).to_basic_token_stream()
+        })
+        .collect::<Vec<_>>();
+
     quote! {
         #[derive(Clone)]
         pub struct #name {
@@ -109,6 +113,21 @@ pub fn tuple_wrapper(
                 (
                     #(#value_getter),*
                 )
+            }
+
+            pub fn by_path(
+                &'static self,
+                mut path: std::collections::VecDeque<String>,
+            ) -> &'static (dyn std::any::Any + Sync) {
+                if path.is_empty() {
+                    return self;
+                }
+                let key = path.pop_front().unwrap();
+
+                match key.as_str() {
+                    #(#by_path_match_arms,)*
+                    _ => unreachable!(),
+                }
             }
         }
 

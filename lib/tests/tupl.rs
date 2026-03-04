@@ -24,13 +24,13 @@ i18n!(
 fn happy() {
     assert_eq!(Language::DE.happy().value().0(), &1);
     assert_eq!(Language::DE.happy().value().1(), &'2');
-    assert_eq!(Language::DE.happy().value().2(), "3");
-    assert_eq!(Language::DE.happy().value().value(), (&1, &'2', "3"));
+    assert_eq!(Language::DE.happy().value().2(), &"3");
+    assert_eq!(Language::DE.happy().value().value(), (&1, &'2', &"3"));
 
     assert_eq!(Language::EN.happy().value().0(), &4);
     assert_eq!(Language::EN.happy().value().1(), &'5');
-    assert_eq!(Language::EN.happy().value().2(), "6");
-    assert_eq!(Language::EN.happy().value().value(), (&4, &'5', "6"));
+    assert_eq!(Language::EN.happy().value().2(), &"6");
+    assert_eq!(Language::EN.happy().value().value(), (&4, &'5', &"6"));
 }
 
 i18n!(

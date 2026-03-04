@@ -106,7 +106,7 @@ pub enum AstRefOrigin {
     SelfNode,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ArgumentKey {
     Index(usize),
     Name(String),

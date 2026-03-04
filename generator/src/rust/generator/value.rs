@@ -188,24 +188,46 @@ impl RustValue {
                             ),
                         ],
                     },
-                    CompositeValue::List { amount: list_size } => {
-                        if values.len() == 1 {
-                            let (_, value) = values.remove(0);
-                            // TODO: Requires checking if children are copy
-                            // RustValue::ListRepeated {
-                            //     value: Box::new(value),
-                            //     amount: *list_size,
-                            // }
-                            RustValue::List(
-                                std::iter::repeat(value)
-                                    .take(*list_size)
-                                    .map(|it| it)
-                                    .collect(),
-                            )
-                        } else {
-                            RustValue::List(values.into_iter().map(|(_, v)| v).collect())
-                        }
-                    }
+                    CompositeValue::List { amount: list_size } => RustValue::Struct {
+                        path: context.relative_path_to_root(&ast_orig.id),
+                        fields: vec![
+                            // TODO: Handle fields that dont exist
+                            if values.len() == 1 {
+                                let (_, value) = values.remove(0);
+                                // TODO: Requires checking if children are copy
+                                // RustValue::ListRepeated {
+                                //     value: Box::new(value),
+                                //     amount: *list_size,
+                                // }
+                                RustValue::List(
+                                    std::iter::repeat(value)
+                                        .take(*list_size)
+                                        .map(|it| it)
+                                        .collect(),
+                                )
+                            } else {
+                                RustValue::List(values.into_iter().map(|(_, v)| v).collect())
+                            },
+                        ],
+                    },
+                    // CompositeValue::List { amount: list_size } => {
+                    // if values.len() == 1 {
+                    //     let (_, value) = values.remove(0);
+                    //     // TODO: Requires checking if children are copy
+                    //     // RustValue::ListRepeated {
+                    //     //     value: Box::new(value),
+                    //     //     amount: *list_size,
+                    //     // }
+                    //     RustValue::List(
+                    //         std::iter::repeat(value)
+                    //             .take(*list_size)
+                    //             .map(|it| it)
+                    //             .collect(),
+                    //     )
+                    // } else {
+                    //     RustValue::List(values.into_iter().map(|(_, v)| v).collect())
+                    // }
+                    // }
                 }
             }
             NodeValue::Literal(..) => match &ast.value {

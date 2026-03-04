@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 dfmt = "0.4.1"
+ctor = "=0.6.3"
 comfy-i18n-macro = { path = "../macro" }
 
 [dev-dependencies]

@@ -1,56 +1,67 @@
-use quote::{ToTokens, quote};
+use std::collections::HashMap;
 
-use crate::generator::{Path, RustType};
+use comfy_i18n_ast::{Ast, Identifier};
+use quote::quote;
 
-pub struct ArrayWrapper {
-    absolute_path: Path,
-    context_path: Path,
-    ty: RustType,
-    size: usize,
-}
+use crate::{
+    generator::{Context, RustType},
+    shared::NamePascalCase,
+};
 
-impl ArrayWrapper {
-    pub const fn new(absolute_path: Path, context_path: Path, ty: RustType, size: usize) -> Self {
-        Self {
-            absolute_path,
-            context_path,
-            ty,
-            size,
+pub fn array_wrapper(
+    node: &Ast,
+    children: &HashMap<Identifier, Ast>,
+    context: &Context,
+) -> proc_macro2::TokenStream {
+    let path = context.relative_path_to_root(&node.id);
+    let name: NamePascalCase = node.identifier.clone().into();
+    let ty = RustType::new(
+        children.get(&Identifier::ArrayIndex(0)).unwrap(),
+        context,
+        &path,
+    );
+
+    let by_path_return_value = match &ty {
+        // TODO: Format?!
+        RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
+            quote! { self[index].by_path(path) }
         }
-    }
-}
+        _ => quote! { &self[index] },
+    };
 
-// TODO: Do we even need this wrapper now? Is there a case where the content is a wrapped type?
-impl ToTokens for ArrayWrapper {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        let name = self.absolute_path.ty().unwrap();
-        let context_path = &self.context_path;
-        let ty = &self.ty;
-        let size = &self.size;
+    quote! {
+        #[derive(Clone)]
+        pub struct #name {
+            value: Vec<#ty>
+        }
 
-        tokens.extend(quote! {
-            #[derive(Clone)]
-            pub struct #name {
-                value: [#ty; #size]
+        impl #name {
+            pub fn new(value: Vec<#ty>) -> Self {
+                Self { value }
             }
 
-            impl #name {
-                pub fn new(_comfy_i18n_context: #context_path, value: [#ty; #size]) -> Self {
-                    Self { value }
-                }
-
-                pub fn value(&self) -> [#ty; #size] {
-                    self.value
-                }
+            pub fn value(&'static self) -> &'static Vec<#ty> {
+                &self.value
             }
 
-            impl core::ops::Index<usize> for #name {
-                type Output = #ty;
-
-                fn index(&self, index: usize) -> &Self::Output {
-                    &self.value[index]
+            pub fn by_path(
+                &'static self,
+                mut path: std::collections::VecDeque<String>,
+            ) -> &'static (dyn std::any::Any + Sync) {
+                if path.is_empty() {
+                    return self.value();
                 }
+                let index = path.pop_front().unwrap().parse::<usize>().unwrap();
+                #by_path_return_value
             }
-        });
+        }
+
+        impl core::ops::Index<usize> for #name {
+            type Output = #ty;
+
+            fn index(&self, index: usize) -> &Self::Output {
+                &self.value[index]
+            }
+        }
     }
 }

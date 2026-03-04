@@ -13,11 +13,6 @@ pub fn fallback_fn(
     access_suffix: proc_macro2::TokenStream,
     available_context_variants: &Vec<String>,
 ) -> proc_macro2::TokenStream {
-    let ty = if matches!(ty, RustType::String) {
-        quote! { #ty }
-    } else {
-        quote! { &'static #ty }
-    };
     let contexts = available_context_variants
         .iter()
         .enumerate()
@@ -28,7 +23,7 @@ pub fn fallback_fn(
         .collect::<Vec<_>>();
 
     quote! {
-        pub fn #field_name(&'static self) -> #ty {
+        pub fn #field_name(&'static self) -> &'static #ty {
             let mut contexts = [None; #context_key::amount()];
             #(#contexts)*
             if contexts.contains(&Some(self.comfy_i18n_context)) {

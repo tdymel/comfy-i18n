@@ -152,6 +152,41 @@ impl ToTokens for ComfyI18n {
                 .add_mod("super".into())
                 .set_ty(self.name_pascal_case()),
         ));
+        generator.add_root_content({
+            let name = self.name_pascal_case();
+            quote! {
+                static _COMFY_I18N_COMPONENTS: std::sync::LazyLock<
+                    std::sync::RwLock<
+                        std::collections::HashMap<
+                            &'static str,
+                            Box<
+                                dyn Fn(#name, std::collections::VecDeque<String>) -> &'static (dyn std::any::Any + Sync)
+                                    + Sync
+                                    + 'static
+                                    + Send,
+                            >,
+                        >,
+                    >,
+                > = std::sync::LazyLock::new(|| std::sync::RwLock::new(std::collections::HashMap::new()));
+            }
+        });
+
+        generator.add_root_content({
+            let name = self.name_pascal_case();
+            quote! {
+                // TODO
+                pub static _COMFY_I18N_DEFAULT_CONTEXT: std::sync::LazyLock<std::sync::RwLock<#name>> = 
+                    std::sync::LazyLock::new(|| std::sync::RwLock::new(Language::DE));
+
+                #[macro_export]
+                macro_rules! _comfy_i18n_default_context {
+                    () => {
+                        crate::#context_name_snake_case::_COMFY_I18N_DEFAULT_CONTEXT.read().unwrap()
+                    }
+                }
+            }
+        });
+
         generator.add_root_content(Struct::new(
             context_name_snake_case.to_pascal_case(),
             vec![Field::public("fallback".into(), RustType::Bool)],
@@ -206,6 +241,49 @@ impl ToTokens for ComfyI18n {
                         }
 
                         return available[0].expect("At least one language must be available.");
+                    }
+                },
+                {
+                    let name = self.name_pascal_case();
+                    quote! {
+                        pub fn register_component(name: &'static str, callback: Box<
+                                    dyn Fn(#name, std::collections::VecDeque<String>) -> &'static (dyn std::any::Any + Sync)
+                                        + Sync
+                                        + 'static
+                                        + Send,
+                                >) {
+                            _COMFY_I18N_COMPONENTS.write().unwrap().insert(name, callback);
+                        }
+                    }
+                },
+                {
+                    quote! {
+                        fn _by_path<'a>(&'a self, mut path: std::collections::VecDeque<String>) -> &'static dyn std::any::Any {
+                            if path.is_empty() {
+                                panic!();
+                                // return self;
+                            }
+                            let key = path.pop_front().unwrap();
+
+                            _COMFY_I18N_COMPONENTS
+                                .read()
+                                .unwrap()
+                                .get(key.as_str())
+                                .unwrap()(*self, path)
+                        }
+
+                        pub fn by_path<'a, T>(&'a self, path: &str) -> Option<&'static T> {
+                            self._by_path(path.split(|c| c == '.' || c == '[')
+                                .map(|segment| {
+                                    if segment.ends_with(']') {
+                                        segment[..segment.len() - 1].to_string()
+                                    } else {
+                                        segment.to_string()
+                                    }
+                                })
+                                .collect())
+                                .downcast_ref::<T>()
+                        }
                     }
                 }
             ],

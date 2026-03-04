@@ -30,6 +30,7 @@ i18n!(
             },
             fmt2: "{}{}",
             fmt7: "{}{}{}{}{}{}{}",
+            fmt7_with_specifier: "{:^20}{:^20}{:^20}{:^20}{:^20}{:^20}{:^20}",
         },
         EN: {
             simple_value: "EN simple value",
@@ -72,6 +73,18 @@ fn fmt2_complex(b: &mut Bencher) {
 }
 
 #[bench]
+fn fmt2_complex_with_dynamic_args(b: &mut Bencher) {
+    let args = [1.14f64, 2.14f64];
+    b.iter(|| Language::DE.benchmark().fmt2(&args[0], &args[1]));
+}
+
+#[bench]
+fn fmt2_complex_with_dynamic_args_and_specifier(b: &mut Bencher) {
+    let args = [1.14f64, 2.14f64];
+    b.iter(|| Language::DE.benchmark().fmt2(&args[0], &args[1]));
+}
+
+#[bench]
 fn fmt7_simple(b: &mut Bencher) {
     b.iter(|| {
         Language::DE.benchmark().fmt7(
@@ -85,6 +98,30 @@ fn fmt7_complex(b: &mut Bencher) {
     b.iter(|| {
         Language::DE.benchmark().fmt7(
             &1.14f64, &2.14f64, &3.14f64, &4.14f64, &5.14f64, &6.14f64, &7.14f64,
+        )
+    });
+}
+
+#[bench]
+fn fmt7_complex_with_dynamic_args(b: &mut Bencher) {
+    let args = [
+        1.14f64, 2.14f64, 3.14f64, 4.14f64, 5.14f64, 6.14f64, 7.14f64,
+    ];
+    b.iter(|| {
+        Language::DE.benchmark().fmt7(
+            &args[0], &args[1], &args[2], &args[3], &args[4], &args[5], &args[6],
+        )
+    });
+}
+
+#[bench]
+fn fmt7_complex_with_dynamic_args_and_specifier(b: &mut Bencher) {
+    let args = [
+        1.14f64, 2.14f64, 3.14f64, 4.14f64, 5.14f64, 6.14f64, 7.14f64,
+    ];
+    b.iter(|| {
+        Language::DE.benchmark().fmt7(
+            &args[0], &args[1], &args[2], &args[3], &args[4], &args[5], &args[6],
         )
     });
 }

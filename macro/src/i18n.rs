@@ -1,6 +1,6 @@
 use comfy_i18n_ast::{Ast, CompositeValue, Identifier, LiteralValue, NodeValue, StringValue};
 use comfy_i18n_generator::{
-    components::{Format, Implementation, Initialization, strct, tuple_wrapper},
+    components::{Format, Implementation, Initialization, array_wrapper, strct, tuple_wrapper},
     generator::{Context, Path, RustGenerator, RustValue},
     shared::{NamePascalCase, NameSnakeCase, ToBasicTokenStream},
 };
@@ -109,6 +109,22 @@ impl I18n {
             }],
         )
     }
+
+    fn component_init(&self) -> proc_macro2::TokenStream {
+        let name = self.name_snake_case();
+        let name_str = name.to_string();
+        let context_key = self.context.context_key();
+
+        quote! {
+            use comfy_i18n::macro_use::ctor;
+
+            #[ctor]
+            fn _comfy_i18n_init_test() {
+                #context_key::register_component(#name_str,
+                    Box::new(|context: #context_key, path: std::collections::VecDeque<String>| context.#name().by_path(path)))
+            }
+        }
+    }
 }
 
 impl ToTokens for I18n {
@@ -117,6 +133,7 @@ impl ToTokens for I18n {
         let reference_tree = self.context.reference_tree();
 
         generator.add_root_content(self.context_impl());
+        generator.add_root_content(self.component_init());
 
         for variant in self.context.context_variants() {
             generator.add_root_content(Initialization::new_static(
@@ -135,6 +152,10 @@ impl ToTokens for I18n {
                 }
                 | NodeValue::Composite {
                     value: CompositeValue::Tuple,
+                    ..
+                }
+                | NodeValue::Composite {
+                    value: CompositeValue::List { .. },
                     ..
                 }
                 | NodeValue::Literal(LiteralValue::String(StringValue::Template(_))) => true,
@@ -162,6 +183,10 @@ impl ToTokens for I18n {
                     children,
                     value: CompositeValue::Tuple,
                 } => generator.add_content(path, tuple_wrapper(node, children, &self.context)),
+                NodeValue::Composite {
+                    children,
+                    value: CompositeValue::List { .. },
+                } => generator.add_content(path, array_wrapper(node, children, &self.context)),
                 NodeValue::Literal(LiteralValue::String(StringValue::Template(template))) => {
                     generator.add_content(
                         path,

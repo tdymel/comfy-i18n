@@ -11,9 +11,11 @@ The API design is very opinionated and aims to use the language specific feature
 ## Core features
 
 ### ✅ Ergonomic, intuitive and extendable API
+Comfy I18n aims to have the most ergnomical and intuitive API design possible.
 This is a small showcase of the API. Please refer to the examples in the documentation for a more detailed overview.
 
 ```rust
+// Must be defined in the crate root
 #[derive(ComfyI18n)]
 pub enum Language {
     EN,
@@ -115,7 +117,7 @@ fn some_component() {
 
     // Access the localization by path or using the usual t! macro
     // Usage is strongly discouraged and only useful for migration from other libraries
-    // This is also behind a feature flag
+    // This can be opt out from using a feature flag.
     assert_eq!(
         Language::DE::by_path<i32>("some_component.person.age"),
         t!("some_component.person.age", context = Language::DE)
@@ -128,12 +130,19 @@ Comfy I18n trades speed for binary size and compile time.
 It creates specialized structures and functions, which may or may not be optimized away by the compiler.  
 Nevertheless, the binary size and compile time would be bigger compared to a dictionary based approach.
 
-| Crate      | Literal        | Interpolation (2 args) | Interpolation (7 args) |
-| ---------- | -------------- | ---------------------- | ---------------------- |
-| comfy-i18n | 0.4 ns         | >53.18 ns ¹            | >136.82 ns ¹           |
-| rust-i18n  | 18.96 ns       | >47.15 ns              | >84.04 ns              |
+For formatted strings [dfmt](https://github.com/tdymel/dfmt) is used under the hood, which performance is very close the the original `core::fmt` machinery, as it uses this machinery under the hood. This means for very simple cases it is slightly slower, as it does not take shortcuts (yet). However, this library will benefit from any future performance improvements of the `core::fmt` machinery.
 
-> ¹ Depending on the complexity. We use [dfmt](https://github.com/tdymel/dfmt). In the future, we will do const folding during transpilation to reduce the amount of arguments to be formatted. Also there is still some room for improvement with dfmt itself.
+| Benchmark                                                  | Comfy-i18n            | Rust-i18n        |
+| ---------------------------------------------------------- | --------------------- | ---------------- | 
+| Lookup of constant                                         | **0.4 ns**            | 18.96 ns         |
+| Interpolation 2 args (strings only)                        | 50.18 ns              | **47.15 ns**     |
+| Interpolation 2 args (f64 only)                            | **129.49 ns**         | 149.10 ns        |
+| Interpolation 2 args (f64 only) + dynamic args             | **128.72 ns**         | 148.25 ns        |
+| Interpolation 2 args (f64 only) + dynamic args + specifier | **130.03 ns**         | 336.88 ns        |
+| Interpolation 7 args (strings only)                        | 136.20 ns             | **85.55 ns**     |
+| Interpolation 7 args (f64 only)                            | **413.65 ns**         | 457.87 ns        |
+| Interpolation 7 args (f64 only) + dynamic args             | **412.05 ns**         | 449.03 ns        |
+| Interpolation 7 args (f64 only) + dynamic args + specifier | **412.40 ns**         | 1,084.64 ns      |
 
 ### 🚧 [#16](https://github.com/tdymel/comfy-i18n/issues/16): Compile time validation
 Be warned if there are missing translations. Warnings during development and errors during production builds.

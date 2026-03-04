@@ -9,7 +9,7 @@ mod tuple_wrapper;
 mod use_path;
 mod value_wrapper;
 
-pub use array_wrapper::ArrayWrapper;
+pub use array_wrapper::array_wrapper;
 pub use fallback_fn::fallback_fn;
 pub use format::Format;
 pub use hackfn::hackfn;

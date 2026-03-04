@@ -38,7 +38,7 @@ impl Format {
 impl ToTokens for Format {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let format_name = &self.name;
-        let non_const_arguments = self
+        let mut non_const_arguments = self
             .template
             .arguments()
             .iter()
@@ -47,6 +47,7 @@ impl ToTokens for Format {
                 _ => None,
             })
             .collect::<Vec<_>>();
+        non_const_arguments.sort_by(|l, r| l.0.cmp(r.0));
 
         let format_arg_names = non_const_arguments
             .iter()
@@ -136,6 +137,8 @@ impl ToTokens for Format {
             "String".to_basic_token_stream(),
         );
 
+        let value_fn_name = format!("{}_value", field_name).to_basic_token_stream();
+
         tokens.extend(quote! {
             #[derive(Clone)]
             pub struct #format_name {
@@ -164,8 +167,14 @@ impl ToTokens for Format {
             #hackfn
 
             impl super::#parent_struct_path {
-                pub fn #field_name(&self #(, #format_arg_names: #format_arg_types)*) -> String {
-                    (self.#field_name.as_ref().unwrap())(#(#format_arg_names),*)
+                // TODO: Visibility
+                pub fn #value_fn_name(&'static self) -> &'static #format_name {
+                    // TODO: Fallback!
+                    self.#field_name.as_ref().unwrap()
+                }
+
+                pub fn #field_name(&'static self #(, #format_arg_names: #format_arg_types)*) -> String {
+                    self.#value_fn_name()(#(#format_arg_names),*)
                 }
             }
         });

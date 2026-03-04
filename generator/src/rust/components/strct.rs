@@ -81,6 +81,21 @@ pub fn strct(
         })
         .collect::<Vec<_>>();
 
+    let by_path_match_arms = fields
+        .iter()
+        .filter(|it| !it.name.to_string().contains("comfy_i18n"))
+        .map(|field| {
+            match &field.ty {
+                RustType::Format(_) => format!("\"{0}\" => self.{0}_value()", field.name),
+                RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
+                    format!("\"{0}\" => self.{0}().by_path(path)", field.name)
+                }
+                _ => format!("\"{0}\" => self.{0}()", field.name),
+            }
+            .to_basic_token_stream()
+        })
+        .collect::<Vec<_>>();
+
     // TODO: Not every type will support copy! Validation!
     quote! {
         #[derive(Clone)]
@@ -98,6 +113,21 @@ pub fn strct(
             }
 
             #(#fns)*
+
+            pub fn by_path(
+                &'static self,
+                mut path: std::collections::VecDeque<String>,
+            ) -> &'static (dyn std::any::Any + Sync) {
+                if path.is_empty() {
+                    return self;
+                }
+                let key = path.pop_front().unwrap();
+
+                match key.as_str() {
+                    #(#by_path_match_arms,)*
+                    _ => unreachable!(),
+                }
+            }
         }
     }
 }

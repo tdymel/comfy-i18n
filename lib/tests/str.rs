@@ -22,8 +22,8 @@ i18n!(
 
 #[test]
 fn happy() {
-    assert_eq!(Language::DE.happy().str_value(), "DE VALUE");
-    assert_eq!(Language::EN.happy().str_value(), "EN VALUE");
+    assert_eq!(Language::DE.happy().str_value(), &"DE VALUE");
+    assert_eq!(Language::EN.happy().str_value(), &"EN VALUE");
 }
 
 i18n!(
@@ -58,6 +58,11 @@ i18n!(
 fn cast() {
     assert_eq!(
         Language::DE.cast().casted_value(),
-        &Language::DE.happy().str_value()
+        Language::DE.happy().str_value()
     );
+}
+
+#[test]
+fn t_macro() {
+    assert!(true);
 }
