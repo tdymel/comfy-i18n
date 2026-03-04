@@ -7,14 +7,12 @@ i18n_init!(
 );
 
 i18n!(
-    name: Happy,
-    translations: {
-        DE: {
-            value: 'A',
-        },
-        EN: {
-            value: 'B'
-        }
+    Happy,
+    DE: {
+        value: 'A',
+    },
+    EN: {
+        value: 'B'
     }
 );
 
@@ -26,12 +24,10 @@ fn happy() {
 }
 
 i18n!(
-    name: FallbackTest,
-    translations: {
-        DE: {
-            value: 'A',
-        },
-    }
+    FallbackTest,
+    DE: {
+        value: 'A',
+    },
 );
 
 #[test]

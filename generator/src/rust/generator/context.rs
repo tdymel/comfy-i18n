@@ -12,16 +12,7 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(localization_tree: Ast, root_name: NameSnakeCase) -> Self {
-        let localizations = localization_tree
-            .children_into()
-            .expect("Root node must contain children")
-            .map(|mut it| {
-                it.detach_from_parent();
-                it
-            })
-            .collect::<Vec<_>>();
-
+    pub fn new(localizations: Vec<Ast>, root_name: NameSnakeCase) -> Self {
         let id_to_path = localizations
             .iter()
             .fold(HashMap::new(), |mut acc, context| {

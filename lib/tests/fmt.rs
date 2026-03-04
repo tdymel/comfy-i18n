@@ -7,16 +7,14 @@ i18n_init!(
 );
 
 i18n!(
-    name: Happy,
-    translations: {
-        DE: {
-            value: "Hallo, {world}!",
-            fmt2: "{arg1} {arg2}",
-            fmt7: "{arg1} {arg2} {arg3} {arg4} {arg5} {arg6} {arg7}",
-        },
-        EN: {
-            value: "Hello, {world}!"
-        }
+    Happy,
+    DE: {
+        value: "Hallo, {world}!",
+        fmt2: "{arg1} {arg2}",
+        fmt7: "{arg1} {arg2} {arg3} {arg4} {arg5} {arg6} {arg7}",
+    },
+    EN: {
+        value: "Hello, {world}!"
     }
 );
 
@@ -28,12 +26,10 @@ fn happy() {
 }
 
 i18n!(
-    name: FallbackTest,
-    translations: {
-        DE: {
-            value: "Hallo, {world}!",
-        },
-    }
+    FallbackTest,
+    DE: {
+        value: "Hallo, {world}!",
+    },
 );
 
 #[test]
@@ -59,16 +55,14 @@ fn fmt7() {
 }
 
 i18n!(
-    name: SelfReferences,
-    translations: {
-        DE: {
-            nested: {
-                value: "Hallo, {self.world}!",
-                value2: "Hallo, {root.nested.world}!",
-                world: "Welt"
-            }
-        },
-    }
+    SelfReferences,
+    DE: {
+        nested: {
+            value: "Hallo, {self.world}!",
+            value2: "Hallo, {root.nested.world}!",
+            world: "Welt"
+        }
+    },
 );
 
 #[test]

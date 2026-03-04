@@ -7,18 +7,16 @@ i18n_init!(
 );
 
 i18n!(
-    name: Happy,
-    translations: {
-        DE: {
-            strct: {
-                tupl: (1, {
-                    a: [(1,{
-                        b: 'C'
-                    },[1,2,3]); 2]
+    Happy,
+    DE: {
+        strct: {
+            tupl: (1, {
+                a: [(1,{
+                    b: 'C'
+                },[1,2,3]); 2]
 
-                })
-            },
-        }
+            })
+        },
     }
 );
 

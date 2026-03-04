@@ -24,44 +24,40 @@ i18n_init!(
 );
 
 i18n!(
-    name: Animals,
-    translations: {
-        EN: {
-            cat: {
-                one: "Cat",
-                many: "Cats"
-            },
+    Animals,
+    EN: {
+        cat: {
+            one: "Cat",
+            many: "Cats"
         },
-        DE: {
-            cat: {
-                one: "Katze",
-                many: "Katzen"
-            },
-        }
+    },
+    DE: {
+        cat: {
+            one: "Katze",
+            many: "Katzen"
+        },
     }
 )
 
 i18n!(
-    name: SomeComponent,
-    translations: {
-        EN: {
-            // Fully supports core::fmt specifiers and is additionally 
-            // able to interpolate constants and self references.
-            fmt_like_syntax: "Hello, {self.person.name} (root.person.age)! Today is the {num_days:03}th day of the year!",
-            person: {
-                name: "Peter",
-                age: 42,
-                pronouns: ["he", "him"],
-                // You can also use any constant, as long as you hint the type
-                favorite_animal: I18n::DE.animals().cat().one() as &'static str,
-            },
-            arbitary_nesting: (1, (2, [{a: 42}; 5]))
+    SomeComponent,
+    EN: {
+        // Fully supports core::fmt specifiers and is additionally 
+        // able to interpolate constants and self references.
+        fmt_like_syntax: "Hello, {self.person.name} (root.person.age)! Today is the {num_days:03}th day of the year!",
+        person: {
+            name: "Peter",
+            age: 42,
+            pronouns: ["he", "him"],
+            // You can also use any constant, as long as you hint the type
+            favorite_animal: I18n::DE.animals().cat().one() as &'static str,
         },
-        DE: {
-            person: {
-                name: "Anna",
-                age: 21,
-            }
+        arbitary_nesting: (1, (2, [{a: 42}; 5]))
+    },
+    DE: {
+        person: {
+            name: "Anna",
+            age: 21,
         }
     }
 )

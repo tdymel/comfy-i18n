@@ -7,14 +7,12 @@ i18n_init!(
 );
 
 i18n!(
-    name: Happy,
-    translations: {
-        DE: {
-            str_value: "DE VALUE",
-        },
-        EN: {
-            str_value: "EN VALUE",
-        }
+    Happy,
+    DE: {
+        str_value: "DE VALUE",
+    },
+    EN: {
+        str_value: "EN VALUE",
     }
 );
 
@@ -25,12 +23,10 @@ fn happy() {
 }
 
 i18n!(
-    name: FallbackTest,
-    translations: {
-        DE: {
-            str_value: "DE VALUE",
-        },
-    }
+    FallbackTest,
+    DE: {
+        str_value: "DE VALUE",
+    },
 );
 
 #[test]
@@ -42,12 +38,10 @@ fn fallback() {
 }
 
 i18n!(
-    name: Cast,
-    translations: {
-        DE: {
-            casted_value: crate::I18n::DE.happy().str_value() as &'static str,
-        },
-    }
+    Cast,
+    DE: {
+        casted_value: crate::I18n::DE.happy().str_value() as &'static str,
+    },
 );
 
 #[test]

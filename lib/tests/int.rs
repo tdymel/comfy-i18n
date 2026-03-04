@@ -7,34 +7,32 @@ i18n_init!(
 );
 
 i18n!(
-    name: Happy,
-    translations: {
-        DE: {
-            i8_value: 1i8,
-            i16_value: 1i16,
-            i32_value: 1i32,
-            i64_value: 1i64,
-            i128_value: 1i128,
-            u8_value: 1u8,
-            u16_value: 1u16,
-            u32_value: 1u32,
-            u64_value: 1u64,
-            u128_value: 1u128,
-            usize_value: 1usize,
-        },
-        EN: {
-            i8_value: 2i8,
-            i16_value: 2i16,
-            i32_value: 2i32,
-            i64_value: 2i64,
-            i128_value: 2i128,
-            u8_value: 2u8,
-            u16_value: 2u16,
-            u32_value: 2u32,
-            u64_value: 2u64,
-            u128_value: 2u128,
-            usize_value: 2usize,
-        }
+    Happy,
+    DE: {
+        i8_value: 1i8,
+        i16_value: 1i16,
+        i32_value: 1i32,
+        i64_value: 1i64,
+        i128_value: 1i128,
+        u8_value: 1u8,
+        u16_value: 1u16,
+        u32_value: 1u32,
+        u64_value: 1u64,
+        u128_value: 1u128,
+        usize_value: 1usize,
+    },
+    EN: {
+        i8_value: 2i8,
+        i16_value: 2i16,
+        i32_value: 2i32,
+        i64_value: 2i64,
+        i128_value: 2i128,
+        u8_value: 2u8,
+        u16_value: 2u16,
+        u32_value: 2u32,
+        u64_value: 2u64,
+        u128_value: 2u128,
+        usize_value: 2usize,
     }
 );
 
@@ -66,12 +64,10 @@ fn happy() {
 }
 
 i18n!(
-    name: FallbackTest,
-    translations: {
-        DE: {
-            i8_value: 1i8,
-        },
-    }
+    FallbackTest,
+    DE: {
+        i8_value: 1i8,
+    },
 );
 
 #[test]

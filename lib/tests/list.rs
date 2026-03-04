@@ -7,16 +7,14 @@ i18n_init!(
 );
 
 i18n!(
-    name: Happy,
-    translations: {
-        DE: {
-            list1: [1; 10],
-            list2: [1,2,3,4],
-        },
-        EN: {
-            list1: [2; 10],
-            list2: [5,6,7,8],
-        }
+    Happy,
+    DE: {
+        list1: [1; 10],
+        list2: [1,2,3,4],
+    },
+    EN: {
+        list1: [2; 10],
+        list2: [5,6,7,8],
     }
 );
 
@@ -30,12 +28,10 @@ fn happy() {
 }
 
 i18n!(
-    name: FallbackTest,
-    translations: {
-        DE: {
-            list1: [1; 10],
-        },
-    }
+    FallbackTest,
+    DE: {
+        list1: [1; 10],
+    },
 );
 
 #[test]
@@ -47,12 +43,10 @@ fn fallback() {
 }
 
 i18n!(
-    name: Nested,
-    translations: {
-        DE: {
-            value: [[[2; 2], [3; 2]]; 1],
-        },
-    }
+    Nested,
+    DE: {
+        value: [[[2; 2], [3; 2]]; 1],
+    },
 );
 
 #[test]

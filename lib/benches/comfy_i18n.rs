@@ -12,29 +12,26 @@ i18n_init!(
 );
 
 i18n!(
-    name: Benchmark,
-    key: crate::I18n,
-    translations: {
-        DE: {
-            simple_value: "DE simple value",
-            simple_value_flt: 3.14,
-            nested1: {
-                nested2: {
-                    nested3: {
-                        nested4: {
-                            simple_nested_value: "Wambo"
-                        }
+    Benchmark,
+    DE: {
+        simple_value: "DE simple value",
+        simple_value_flt: 3.14,
+        nested1: {
+            nested2: {
+                nested3: {
+                    nested4: {
+                        simple_nested_value: "Wambo"
                     }
                 }
-            },
-            fmt2: "{}{}",
-            fmt7: "{}{}{}{}{}{}{}",
-            fmt7_with_specifier: "{:^20}{:^20}{:^20}{:^20}{:^20}{:^20}{:^20}",
+            }
         },
-        EN: {
-            simple_value: "EN simple value",
-            simple_value_flt: 3.15,
-        }
+        fmt2: "{}{}",
+        fmt7: "{}{}{}{}{}{}{}",
+        fmt7_with_specifier: "{:^20}{:^20}{:^20}{:^20}{:^20}{:^20}{:^20}",
+    },
+    EN: {
+        simple_value: "EN simple value",
+        simple_value_flt: 3.15,
     }
 );
 

@@ -15,27 +15,23 @@ pub struct I18n {
 
 impl Parse for I18n {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let name_key = input.parse::<Ident>()?;
-        assert_eq!(name_key.to_string().as_str(), "name");
-        input.parse::<syn::token::Colon>()?;
-        let name_value = input.parse::<Ident>()?;
+        let name = input.parse::<Ident>()?;
         input.parse::<syn::token::Comma>()?;
 
-        // This is everything but robust!
-        let translations = input
+        let localizations = input
             .parse::<proc_macro2::TokenStream>()?
-            .parse_field()
-            .unwrap();
+            .parse_fields()
+            .unwrap()
+            .into_iter()
+            .map(Ast::from)
+            .collect();
 
         let context = Context::new(
-            Ast::from(translations),
-            NamePascalCase::from(name_value.to_string()).to_snake_case(),
+            localizations,
+            NamePascalCase::from(name.to_string()).to_snake_case(),
         );
 
-        Ok(Self {
-            name: name_value,
-            context,
-        })
+        Ok(Self { name, context })
     }
 }
 
@@ -125,21 +121,12 @@ impl ToTokens for I18n {
 
         for node in reference_tree
             .traverse()
-            .filter(|node| match &node.value {
-                NodeValue::Composite {
-                    value: CompositeValue::Struct,
-                    ..
-                }
-                | NodeValue::Composite {
-                    value: CompositeValue::Tuple,
-                    ..
-                }
-                | NodeValue::Composite {
-                    value: CompositeValue::List { .. },
-                    ..
-                }
-                | NodeValue::Literal(LiteralValue::String(StringValue::Template(_))) => true,
-                _ => false,
+            .filter(|node| {
+                matches!(
+                    &node.value,
+                    NodeValue::Composite { .. }
+                        | NodeValue::Literal(LiteralValue::String(StringValue::Template(_)))
+                )
             })
             .filter(|node| {
                 if let Identifier::ArrayIndex(index) = node.identifier

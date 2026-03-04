@@ -64,7 +64,9 @@ pub fn strct(
                 &context.context_key(),
                 absolute_path.to_access_path().to_basic_token_stream(),
                 quote! { #name.as_ref().unwrap() },
-                &context.available_context_variants(&ast.id).collect(),
+                &context
+                    .available_context_variants(&ast.id)
+                    .collect::<Vec<String>>(),
             )
         })
         .collect::<Vec<_>>();

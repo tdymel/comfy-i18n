@@ -7,16 +7,14 @@ i18n_init!(
 );
 
 i18n!(
-    name: Happy,
-    translations: {
-        DE: {
-            f32_value: 3.14f32,
-            f64_value: 3.14f32,
-        },
-        EN: {
-            f32_value: 3.15f32,
-            f64_value: 3.15f32,
-        }
+    Happy,
+    DE: {
+        f32_value: 3.14f32,
+        f64_value: 3.14f32,
+    },
+    EN: {
+        f32_value: 3.15f32,
+        f64_value: 3.15f32,
     }
 );
 
@@ -30,12 +28,10 @@ fn happy() {
 }
 
 i18n!(
-    name: FallbackTest,
-    translations: {
-        DE: {
-            f32_value: 3.14f32,
-        },
-    }
+    FallbackTest,
+    DE: {
+        f32_value: 3.14f32,
+    },
 );
 
 #[test]

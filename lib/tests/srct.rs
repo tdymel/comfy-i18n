@@ -7,17 +7,15 @@ i18n_init!(
 );
 
 i18n!(
-    name: Happy,
-    translations: {
-        DE: {
-            value: {
-                sth: true
-            },
+    Happy,
+    DE: {
+        value: {
+            sth: true
         },
-        EN: {
-            value: {
-                sth: false
-            }
+    },
+    EN: {
+        value: {
+            sth: false
         }
     }
 );
@@ -30,14 +28,12 @@ fn happy() {
 }
 
 i18n!(
-    name: FallbackTest,
-    translations: {
-        DE: {
-            value: {
-                sth: true
-            }
-        },
-    }
+    FallbackTest,
+    DE: {
+        value: {
+            sth: true
+        }
+    },
 );
 
 #[test]
@@ -49,16 +45,14 @@ fn fallback() {
 }
 
 i18n!(
-    name: Nested,
-    translations: {
-        DE: {
-            value: {
-                sth: {
-                    other: true
-                }
+    Nested,
+    DE: {
+        value: {
+            sth: {
+                other: true
             }
-        },
-    }
+        }
+    },
 );
 
 #[test]

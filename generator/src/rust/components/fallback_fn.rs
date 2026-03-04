@@ -11,7 +11,7 @@ pub fn fallback_fn(
     context_key: &Path,
     access_path: proc_macro2::TokenStream,
     access_suffix: proc_macro2::TokenStream,
-    available_context_variants: &Vec<String>,
+    available_context_variants: &[String],
 ) -> proc_macro2::TokenStream {
     let contexts = available_context_variants
         .iter()

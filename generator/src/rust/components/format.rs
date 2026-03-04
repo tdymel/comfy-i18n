@@ -98,28 +98,25 @@ impl ToTokens for Format {
             .arguments()
             .iter()
             .flat_map(|(arg, _)| match arg {
-                ArgumentName::Const(name_ref) => match name_ref {
-                    NameRef::Ast { origin, path, .. } => {
-                        let arg_name = arg.to_string().replace(".", "_");
-                        let access_path = match origin {
-                            AstRefOrigin::RootNode => path
-                                .iter()
-                                .fold(format!("self.comfy_i18n_context.{}()", self.root_name), |acc, it| {
-                                    format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
-                                }),
-                            AstRefOrigin::SelfNode => path
-                                .iter()
-                                .fold(format!("self.comfy_i18n_context.{}", self_access_path), |acc, it| {
-                                    format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
-                                }),
-                        };
-                        Some(
-                            // TODO: Correct ArgumentType
-                            format!("let {0} = {1}; args.add_argument_value_unchecked(\"{0}\", comfy_i18n::macro_use::ArgumentValue::Display(&{0}));", arg_name, access_path)
-                                .to_basic_token_stream(),
-                        )
-                    }
-                    _ => None,
+                ArgumentName::Const(NameRef::Ast { origin, path, .. }) => {
+                    let arg_name = arg.to_string().replace(".", "_");
+                    let access_path = match origin {
+                        AstRefOrigin::RootNode => path
+                            .iter()
+                            .fold(format!("self.comfy_i18n_context.{}()", self.root_name), |acc, it| {
+                                format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
+                            }),
+                        AstRefOrigin::SelfNode => path
+                            .iter()
+                            .fold(format!("self.comfy_i18n_context.{}", self_access_path), |acc, it| {
+                                format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
+                            }),
+                    };
+                    Some(
+                        // TODO: Correct ArgumentType
+                        format!("let {0} = {1}; args.add_argument_value_unchecked(\"{0}\", comfy_i18n::macro_use::ArgumentValue::Display(&{0}));", arg_name, access_path)
+                            .to_basic_token_stream(),
+                    )
                 },
                 _ => None,
             })
