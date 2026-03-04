@@ -5,7 +5,7 @@ use quote::{ToTokens, quote};
 
 use crate::{
     components::fallback_fn,
-    generator::{Context, Path},
+    generator::Context,
     rust::{
         generator::RustType,
         shared::{NamePascalCase, NameSnakeCase},
@@ -26,16 +26,14 @@ pub fn strct(
         node.identifier.clone().into()
     };
 
-    let mut fields: Vec<Field> = children
-        .iter()
-        .map(|(_, field)| {
+    let mut fields: Vec<Field> = children.values().map(|field| {
             Field::optional(
                 field.identifier.clone().into(),
                 RustType::new(field, context, &path),
             )
         })
         .collect::<Vec<_>>();
-    fields.sort_by(|f1, f2| f1.name.to_string().cmp(&f2.name.to_string()));
+    fields.sort_by_key(|f1| f1.name.to_string());
     if with_comfy_i18n_context {
         fields.push(Field::new(
             "comfy_i18n_context".into(),
@@ -140,7 +138,7 @@ pub struct Struct {
 
 impl Struct {
     pub fn new(name: NamePascalCase, mut fields: Vec<Field>) -> Self {
-        fields.sort_by(|f1, f2| f1.name.to_string().cmp(&f2.name.to_string()));
+        fields.sort_by_key(|f1| f1.name.to_string());
         Self { name, fields }
     }
 }

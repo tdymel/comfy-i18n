@@ -143,7 +143,7 @@ impl RustValue {
         match &ast_orig.value {
             NodeValue::Composite { children, value } => {
                 let mut pairs = children.iter().collect::<Vec<_>>();
-                pairs.sort_by(|(k1, _), (k2, _)| k1.cmp(k2));
+                pairs.sort_by_key(|(k1, _)| *k1);
                 let mut values = pairs
                     .into_iter()
                     .map(|(k, v)| (k, Self::by_variant(v, context, variant)))
@@ -200,9 +200,7 @@ impl RustValue {
                                 //     amount: *list_size,
                                 // }
                                 RustValue::List(
-                                    std::iter::repeat(value)
-                                        .take(*list_size)
-                                        .map(|it| it)
+                                    std::iter::repeat_n(value, *list_size)
                                         .collect(),
                                 )
                             } else {

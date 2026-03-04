@@ -22,7 +22,7 @@ pub fn tuple_wrapper(
         .set_ty(node.identifier.clone().into());
 
     let mut pairs = children.iter().collect::<Vec<_>>();
-    pairs.sort_by(|(k1, _), (k2, _)| k1.cmp(k2));
+    pairs.sort_by_key(|(k1, _)| *k1);
     let tys = pairs
         .iter()
         .map(|(_, field)| RustType::new(field, context, &path))

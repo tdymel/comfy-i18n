@@ -1,5 +1,5 @@
 use comfy_i18n_ast::{
-    Ast, CompositeValue, FloatValue, Identifier, IntegerValue, LiteralValue, NodeValue, StringValue,
+    Ast, CompositeValue, FloatValue, IntegerValue, LiteralValue, NodeValue, StringValue,
 };
 use quote::{ToTokens, quote};
 
@@ -68,7 +68,7 @@ impl ToTokens for RustType {
 impl RustType {
     pub fn new(node: &Ast, context: &Context, relative_root: &Path) -> Self {
         match &node.value {
-            NodeValue::Composite { children, value } => match value {
+            NodeValue::Composite { children: _, value } => match value {
                 CompositeValue::Struct => Self::Struct(
                     context
                         .relative_path_to_root(&node.id)

@@ -173,15 +173,38 @@ impl ToTokens for ComfyI18n {
 
         generator.add_root_content({
             let name = self.name_pascal_case();
+            let default_variant = self.variants.iter().find(|it| it.fallback)
+                .map(|it| it.name.to_string())
+                .unwrap_or_else(|| self.variants.first().unwrap().name.to_string())
+                .to_basic_token_stream();
             quote! {
-                // TODO
                 pub static _COMFY_I18N_DEFAULT_CONTEXT: std::sync::LazyLock<std::sync::RwLock<#name>> = 
-                    std::sync::LazyLock::new(|| std::sync::RwLock::new(Language::DE));
+                    std::sync::LazyLock::new(|| std::sync::RwLock::new(#name::#default_variant));
 
                 #[macro_export]
                 macro_rules! _comfy_i18n_default_context {
                     () => {
                         crate::#context_name_snake_case::_COMFY_I18N_DEFAULT_CONTEXT.read().unwrap()
+                    }
+                }
+
+                #[macro_export]
+                macro_rules! comfy_i18n_set_default_context {
+                    ($context:expr) => {
+                        {
+                            let mut context = crate::#context_name_snake_case::_COMFY_I18N_DEFAULT_CONTEXT.write().unwrap();
+                            *context = $context.clone();
+                        }
+                    }
+                }
+
+                impl #name {
+                    pub fn set_default_context(context: Self) {
+                        comfy_i18n_set_default_context!(context);
+                    } 
+
+                    pub fn set_as_default_context(&self) {
+                        comfy_i18n_set_default_context!(self);
                     }
                 }
             }
@@ -261,7 +284,6 @@ impl ToTokens for ComfyI18n {
                         fn _by_path<'a>(&'a self, mut path: std::collections::VecDeque<String>) -> &'static dyn std::any::Any {
                             if path.is_empty() {
                                 panic!();
-                                // return self;
                             }
                             let key = path.pop_front().unwrap();
 

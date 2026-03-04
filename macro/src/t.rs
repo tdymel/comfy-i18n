@@ -119,7 +119,6 @@ impl ToTokens for T {
             quote! { _comfy_i18n_default_context!() }
         };
 
-        let mut counted_index = 0usize;
         let mut args = self.args.clone();
         args.sort_by(|l, r| l.key.cmp(&r.key));
 
@@ -150,7 +149,7 @@ impl ToTokens for T {
                 format!(
                     "{}_value(){}",
                     &new_path[..new_path.len() - 2],
-                    fn_suffix.to_string()
+                    fn_suffix
                 )
                 .to_basic_token_stream()
             };
