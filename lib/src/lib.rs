@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 pub mod macro_use {
     pub use ctor::ctor;
     pub use dfmt::Template;

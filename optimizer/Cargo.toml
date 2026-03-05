@@ -2,5 +2,11 @@
 name = "comfy-i18n-optimizer"
 version = "0.1.0"
 edition = "2024"
+description = "Optimizes the AST using const folding"
+readme = "../README.md"
+repository = "https://github.com/tdymel/comfy-i18n"
+documentation = "https://docs.rs/comfy-i18n"
+license = "MIT OR Apache-2.0"
+publish = false
 
 [dependencies]

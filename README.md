@@ -45,7 +45,7 @@ i18n!(
     EN: {
         // Fully supports core::fmt specifiers and is additionally 
         // able to interpolate constants and self references.
-        fmt_like_syntax: "Hello, {self.person.name} (root.person.age)! Today is the {num_days:03}th day of the year!",
+        fmt_like_syntax: "Hello, {self.person.name} ({root.person.age})! Today is the {num_days:03}th day of the year!",
         person: {
             name: "Peter",
             age: 42,
@@ -113,10 +113,14 @@ fn some_component() {
     // The macro defaults to the first fallback language by default
     // For dynamic paths, the macro assumes the type &'static str if no other type is specified
     // The macro can resolve the type of static paths itself
-    let path = "some_component.person.name";
+    let path = "some_component.person.age";
     assert_eq!(
-        I18n::DE::by_path<&'static str>(path),
-        t!(path)
+        I18n::DE::by_path::<i32>(path),
+        t!(path, ty = i32)
+    );
+    assert_eq!(
+        t!(path, ty = i32),
+        t!("some_component.person.age")
     );
 }
 ```

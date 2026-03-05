@@ -1,12 +1,26 @@
 [package]
 name = "comfy-i18n"
+authors = ["Tom Dymel <tom@dymel.dev>"]
 version = "0.1.0"
 edition = "2024"
+keywords = [
+    "gettext",
+    "i18n",
+    "internationalization",
+    "localization",
+    "translation",
+]
+categories = ["localization", "internationalization"]
+description = "An i18n codegen which transpiles localization sources into an ergnomic API using Rust's language features"
+readme = "../README.md"
+repository = "https://github.com/tdymel/comfy-i18n"
+documentation = "https://docs.rs/comfy-i18n"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 dfmt = "0.4.1"
 ctor = "=0.6.3"
-comfy-i18n-macro = { path = "../macro" }
+comfy-i18n-macro = { path = "../macro", version = "0.1" }
 
 [dev-dependencies]
 rust-i18n = "3"

@@ -148,6 +148,8 @@ impl ToTokens for Format {
                     Self { comfy_i18n_context, template }
                 }
                 // TODO: Handle const arguments
+                // TODO: Add i18n root keyword: i18n.DE.component.tree.path
+                // TODO: Add context root keyword: context.component.tree.path
                 // TODO: Apparently specifying these arguments here in the 
                 // place has a singificant performance overhead for the formatting.
                 // We are in a unique position where we know which arguments we want to put in there, so we could 

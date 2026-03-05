@@ -2,11 +2,16 @@
 name = "comfy-i18n-macro"
 version = "0.1.0"
 edition = "2024"
+description = "Proc macros for the rust code generation"
+readme = "../README.md"
+repository = "https://github.com/tdymel/comfy-i18n"
+documentation = "https://docs.rs/comfy-i18n"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
-comfy-i18n-ast = { path = "./../ast" }
-comfy-i18n-parser = { path = "./../parser" }
-comfy-i18n-generator = { path = "./../generator" }
+comfy-i18n-ast = { path = "./../ast", version = "0.1" }
+comfy-i18n-parser = { path = "./../parser", version = "0.1" }
+comfy-i18n-generator = { path = "./../generator", version = "0.1" }
 proc-macro2 = "1"
 quote = "1"
 syn = "2"
