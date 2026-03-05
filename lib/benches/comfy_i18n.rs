@@ -3,7 +3,7 @@
 extern crate test;
 use test::Bencher;
 
-use comfy_i18n_macro::{i18n, i18n_init};
+use comfy_i18n::{i18n, i18n_init};
 
 i18n_init!(
     #[fallback]

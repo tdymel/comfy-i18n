@@ -46,7 +46,10 @@ impl Parse for I18n {
                             #id: {
                                 #ts_content
                             }
-                        }.parse_field().unwrap().into();
+                        }
+                        .parse_field()
+                        .unwrap()
+                        .into();
                     } else if path.is_dir() {
                         todo!()
                     } else {
@@ -121,10 +124,8 @@ impl I18n {
         let context_key = self.context.context_key();
 
         quote! {
-            use comfy_i18n::macro_use::ctor;
-
-            #[ctor]
-            fn _comfy_i18n_init_test() {
+            #[comfy_i18n::ctor]
+            unsafe fn _comfy_i18n_init_test() {
                 #context_key::register_component(#name_str,
                     Box::new(|context: #context_key, path: std::collections::VecDeque<String>| context.#name().by_path(path)))
             }
