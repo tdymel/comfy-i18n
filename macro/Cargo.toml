@@ -1,6 +1,6 @@
 [package]
 name = "comfy-i18n-macro"
-version = "0.1.0"
+version = "0.2"
 edition = "2024"
 description = "Proc macros for the rust code generation"
 readme = "../README.md"
