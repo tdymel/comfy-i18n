@@ -110,11 +110,13 @@ fn some_component() {
     );
 
     // Access the localization by path or using the usual t! macro
-    // Usage is strongly discouraged and only useful for migration from other libraries
-    // This can be opt out from using a feature flag.
+    // The macro defaults to the first fallback language by default
+    // For dynamic paths, the macro assumes the type &'static str if no other type is specified
+    // The macro can resolve the type of static paths itself
+    let path = "some_component.person.name";
     assert_eq!(
-        I18n::DE::by_path<i32>("some_component.person.age"),
-        t!("some_component.person.age", context = I18n::DE)
+        I18n::DE::by_path<&'static str>(path),
+        t!(path)
     );
 }
 ```
