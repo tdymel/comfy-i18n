@@ -46,15 +46,14 @@ impl Parse for I18n {
                     let mut contents = String::new();
                     file.read_to_string(&mut contents)
                         .map_err(|_| input.error("Failed to read file content"))?;
+                    let ts_contents = contents.to_basic_token_stream();
+                    let id = ast.identifier.to_string().to_basic_token_stream();
 
-                    return Ok(Ast::from(SpannedAst::new(
-                        ast.identifier,
-                        proc_macro2::Span::call_site(),
-                        contents
-                            .to_basic_token_stream()
-                            .parse_node_value()
+                    return Ok(Ast::from(
+                        quote! { #id: { #ts_contents }}
+                            .parse_field()
                             .map_err(|err| input.error(err.to_string()))?,
-                    )));
+                    ));
                 }
 
                 Ok(ast)

@@ -14,6 +14,7 @@ pub enum RustType {
     Char,
     Bool,
     Float { bits: u8 },
+    Usize,
     Integer { unsigned: bool, bits: u8 },
     List(Path),
     Tuple(Path),
@@ -36,6 +37,7 @@ impl ToTokens for RustType {
                 }
                 _ => panic!(),
             },
+            RustType::Usize => quote! {usize},
             RustType::Integer { unsigned, bits } => match bits {
                 8 | 16 | 32 | 64 | 128 => {
                     let type_name = match unsigned {
@@ -103,6 +105,7 @@ impl RustType {
                     FloatValue::F32(_) => RustType::Float { bits: 32 },
                 },
                 LiteralValue::Integer(integer_value) => match integer_value {
+                    IntegerValue::Usize(_) => RustType::Usize,
                     IntegerValue::I128(_) => RustType::Integer {
                         unsigned: false,
                         bits: 128,

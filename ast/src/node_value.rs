@@ -46,6 +46,7 @@ pub enum IntegerValue {
     U16(u16),
     I8(i8),
     U8(u8), // Byte
+    Usize(usize),
 }
 
 impl IntegerValue {
@@ -61,6 +62,7 @@ impl IntegerValue {
             IntegerValue::U16(v) => Some(v as usize),
             IntegerValue::I8(v) => Self::convert_signed(v),
             IntegerValue::U8(v) => Some(v as usize),
+            IntegerValue::Usize(v) => Some(v),
         }
     }
 

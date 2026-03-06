@@ -31,6 +31,7 @@ impl Parse for Literal {
                         "u16" => IntegerValue::U16(lit_int.base10_parse()?),
                         "i8" => IntegerValue::I8(lit_int.base10_parse()?),
                         "u8" => IntegerValue::U8(lit_int.base10_parse()?),
+                        "usize" => IntegerValue::Usize(lit_int.base10_parse()?),
                         _ => IntegerValue::I32(lit_int.base10_parse()?),
                     },
                 )))),

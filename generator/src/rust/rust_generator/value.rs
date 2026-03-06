@@ -78,6 +78,7 @@ impl ToTokens for RustValue {
                 IntegerValue::U16(val) => quote! {#val},
                 IntegerValue::I8(val) => quote! {#val},
                 IntegerValue::U8(val) => quote! {#val},
+                IntegerValue::Usize(val) => quote! {#val},
             },
             RustValue::Bool(val) => quote! {#val},
             RustValue::Reference {
