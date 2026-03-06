@@ -29,6 +29,9 @@ impl From<Identifier> for NamePascalCase {
 
 impl From<String> for NamePascalCase {
     fn from(value: String) -> Self {
+        if value.contains("_") {
+            return NameSnakeCase::from(value).to_pascal_case();
+        }
         NamePascalCase(value)
     }
 }
@@ -92,7 +95,14 @@ impl NameSnakeCase {
 
 impl From<String> for NameSnakeCase {
     fn from(value: String) -> Self {
-        // TODO: More logic to detect other cases and convert them on the fly
+        if !value.contains("_")
+            && value
+                .chars()
+                .next()
+                .map_or(false, |c| c.is_ascii_uppercase())
+        {
+            return NamePascalCase::from(value).to_snake_case();
+        }
         Self(value.to_lowercase())
     }
 }
