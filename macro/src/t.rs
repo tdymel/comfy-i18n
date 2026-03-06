@@ -116,7 +116,7 @@ impl ToTokens for T {
         let context = if let Some(context) = &self.context {
             quote! { #context }
         } else {
-            quote! { _comfy_i18n_default_context!() }
+            quote! { crate::I18n::current() }
         };
 
         let mut args = self.args.clone();

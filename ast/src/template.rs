@@ -83,18 +83,11 @@ pub enum NameRef {
 impl std::fmt::Display for NameRef {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            NameRef::Ast { origin, path } => match origin {
-                AstRefOrigin::RootNode => f.write_str(
-                    &path
-                        .iter()
-                        .fold("root".to_string(), |acc, it| format!("{}.{}", acc, it)),
-                ),
-                AstRefOrigin::SelfNode => f.write_str(
-                    &path
-                        .iter()
-                        .fold("self".to_string(), |acc, it| format!("{}.{}", acc, it)),
-                ),
-            },
+            NameRef::Ast { origin, path } => f.write_str(
+                &path
+                    .iter()
+                    .fold(origin.to_string(), |acc, it| format!("{}.{}", acc, it)),
+            ),
             NameRef::Other(_) => todo!(),
         }
     }
@@ -104,6 +97,19 @@ impl std::fmt::Display for NameRef {
 pub enum AstRefOrigin {
     RootNode,
     SelfNode,
+    ContextNode,
+    I18nNode,
+}
+
+impl std::fmt::Display for AstRefOrigin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AstRefOrigin::RootNode => f.write_str("root"),
+            AstRefOrigin::SelfNode => f.write_str("self"),
+            AstRefOrigin::ContextNode => f.write_str("context"),
+            AstRefOrigin::I18nNode => f.write_str("i18n"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]

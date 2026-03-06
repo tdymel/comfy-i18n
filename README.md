@@ -1,6 +1,4 @@
 # ☕ Comfy I18n
-![Architecture](./architecture.png)
-
 Comfy I18n aims to be a source format and target language agnostic transpiler. Currently, only the **comfy**-format and **rust** is implemented.
 
 It translates your i18n sources to usable structures in your source code at compile time.  
@@ -16,6 +14,7 @@ This is a small showcase of the API. Please refer to the examples in the documen
 
 ```rust
 // Must be used in the crate root
+// Define the available contexts
 i18n_init!(
     EN,
     #[fallback]
@@ -31,60 +30,57 @@ i18n!(
             many: "Cats"
         },
     },
-    DE: {
-        cat: {
-            one: "Katze",
-            many: "Katzen"
-        },
-    },
-    RU: "path/relative/to/root.comfy"
+    DE: "path/relative/to/root.comfy"
 )
 
 i18n!(
     some_component,
     EN: {
-        // Fully supports core::fmt specifiers and is additionally 
-        // able to interpolate constants and self references.
-        fmt_like_syntax: "Hello, {self.person.name} ({root.person.age})! Today is the {num_days:03}th day of the year!",
+        // Fully supports core::fmt specifiers
+        fmt_like_syntax: "Today is the {num_days:03}th day of the year!",
+        // Reference the localization trees
+        i18n_references: "Hello {i18n.EN.some_component.person.name:^20}!",
+        context_references: "Hello {context.some_component.person.name:^20}!",
+        root_references: "Hello {root.person.name:^20}!",
         person: {
+            self_references: "Hello {self.name:^20}!",
             name: "Peter",
             age: 42,
             pronouns: ["he", "him"],
             // You can also use any constant, as long as you hint the type
             favorite_animal: I18n::DE.animals().cat().one() as &'static str,
         },
-        arbitary_nesting: (1, (2, [{a: 42}; 5]))
+        arbitary_nesting: (1, (2, [{a: 42}; 5])),
+        // 🚧 More utility functions and ICU support will be added in the future
+        complicated_localization: |&self, amount: usize| -> String {
+            let cat = self.context().animals().cat();
+            match amount {
+                0 => format!("No {}", cat.many()),
+                1 => format!("A {}", cat.one()),
+                num_cats => format!("{} {}", num_cats, cat.many())
+            }
+        }
     },
     DE: {
         person: {
             name: "Anna",
             age: 21,
+        },
+        complicated_localization: |&self, amount: usize| -> String {
+            let cat = self.context().animals().cat();
+            match amount {
+                0 => format!("Keine {}", cat.many()),
+                1 => format!("Eine {}", cat.one()),
+                num_cats => format!("{} {}", num_cats, cat.many())
+            }
         }
     }
 )
 
-// You can implement custom functions using the full context for more complicated cases.
-// 🚧 Later, functions can be declared within the macro itself.
-// 🚧 More support functions for i18n and pluralizations will be added.
-impl some_component::person::Person {
-    pub fn complicated_localization(&self, amount: usize) -> String {
-        match self.comfy_i18n_context {
-            I18n::DE => match amount {
-                0 => format!("Keine {}", I18n::DE.animals().cat().many()),
-                1 => format!("Eine {}", I18n::DE.animals().cat().one()),
-                num_cats => format!("{} {}", num_cats, I18n::DE.animals().cat().many())
-            },
-            _ => match amount {
-                0 => format!("No {}", I18n::EN.animals().cat().many()),
-                1 => format!("A {}", I18n::EN.animals().cat().one()),
-                num_cats => format!("{} {}", num_cats, I18n::EN.animals().cat().many())
-            }
-        }
-    }
-}
-
 fn some_component() {
-    // The language enum value can easily be passed as part of the context of any framework.
+    // Set the current global context within the application 
+    // By default the next best context is chosen (fallback > first)
+    Language::DE.as_current_context();
 
     assert_eq!(
         I18n::EN.some_component().fmt_like_syntax(&83)
@@ -93,7 +89,7 @@ fn some_component() {
 
     // Falls back to the english format string, using the german values for person
     assert_eq!(
-        I18n::DE.some_component().fmt_like_syntax(&83),
+        I18n::current().some_component().fmt_like_syntax(&83),
         "Hello, Anna (21)! Today is the 083th day of the year!"
     );
 
@@ -110,17 +106,21 @@ fn some_component() {
     );
 
     // Access the localization by path or using the usual t! macro
-    // The macro defaults to the first fallback language by default
+    // The macro defaults to the first fallback context by default, unless another is specified
     // For dynamic paths, the macro assumes the type &'static str if no other type is specified
     // The macro can resolve the type of static paths itself
     let path = "some_component.person.age";
     assert_eq!(
-        I18n::DE::by_path::<i32>(path),
+        I18n::EN::by_path::<i32>(path),
         t!(path, ty = i32)
     );
     assert_eq!(
         t!(path, ty = i32),
         t!("some_component.person.age")
+    );
+    assert_eq!(
+        I18n::EN.some_component().fmt_like_syntax(&83),
+        t!("some_component.fmt_like_syntax", context = I18n::EN, num_days = 83)
     );
 }
 ```

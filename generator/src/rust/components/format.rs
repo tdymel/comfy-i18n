@@ -87,17 +87,11 @@ impl ToTokens for Format {
             })
             .collect::<Vec<_>>();
 
-        let self_access_path = self
-            .parent_struct
-            .clone()
-            .prepend_mod(self.root_name.clone())
-            .clear_ty()
-            .to_access_path();
         let self_args = self
             .template
             .arguments()
             .iter()
-            .flat_map(|(arg, _)| match arg {
+            .flat_map(|(arg, specifier)| match arg {
                 ArgumentName::Const(NameRef::Ast { origin, path, .. }) => {
                     let arg_name = arg.to_string().replace(".", "_");
                     let access_path = match origin {
@@ -106,15 +100,55 @@ impl ToTokens for Format {
                             .fold(format!("self.comfy_i18n_context.{}()", self.root_name), |acc, it| {
                                 format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
                             }),
-                        AstRefOrigin::SelfNode => path
+                        AstRefOrigin::SelfNode => {
+                            let access_path = self
+                                .parent_struct
+                                .clone()
+                                .prepend_mod(self.root_name.clone())
+                                .clear_ty()
+                                .to_access_path();
+                            path
                             .iter()
-                            .fold(format!("self.comfy_i18n_context.{}", self_access_path), |acc, it| {
+                            .fold(format!("self.comfy_i18n_context.{}", access_path), |acc, it| {
                                 format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
-                            }),
+                            })
+                        },
+                        AstRefOrigin::ContextNode => {
+                            let access_path = self
+                                .parent_struct
+                                .clone()
+                                .clear_ty()
+                                .to_access_path();
+                            path
+                            .iter()
+                            .fold(format!("self.comfy_i18n_context.{}", access_path), |acc, it| {
+                                format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
+                            })
+                        },
+                        AstRefOrigin::I18nNode => {
+                            let mut access_gen_path = self
+                                .parent_struct
+                                .clone();
+                            let context = access_gen_path.pop_front().unwrap(); 
+                            let access_path = access_gen_path
+                                .clone()
+                                .clear_ty()
+                                .to_access_path();
+
+                            path
+                            .iter()
+                            .fold(format!("crate::I18n::{}.{}", context.to_uppercase(), access_path), |acc, it| {
+                                format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
+                            })
+                        },
                     };
+
+                    let specifier_type = specifier
+                        .as_ref()
+                        .map(|it| it.ty)
+                        .unwrap_or(comfy_i18n_ast::Type::Display);
                     Some(
-                        // TODO: Correct ArgumentType
-                        format!("let {0} = {1}; args.add_argument_value_unchecked(\"{0}\", comfy_i18n::macro_use::ArgumentValue::Display(&{0}));", arg_name, access_path)
+                        format!("let {0} = {1}; args.add_argument_value_unchecked(\"{0}\", comfy_i18n::macro_use::ArgumentValue::{2:?}(&{0}));", arg_name, access_path, specifier_type)
                             .to_basic_token_stream(),
                     )
                 },
@@ -148,8 +182,6 @@ impl ToTokens for Format {
                     Self { comfy_i18n_context, template }
                 }
                 // TODO: Handle const arguments
-                // TODO: Add i18n root keyword: i18n.DE.component.tree.path
-                // TODO: Add context root keyword: context.component.tree.path
                 // TODO: Apparently specifying these arguments here in the 
                 // place has a singificant performance overhead for the formatting.
                 // We are in a unique position where we know which arguments we want to put in there, so we could 

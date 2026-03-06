@@ -210,21 +210,27 @@ fn parse_template(input: &str, span: Span) -> Result<Vec<Piece>, Error> {
                                 }
                                 Err(_) => {
                                     match (
-                                        name.starts_with("self."),
-                                        name.starts_with("root."),
+                                        name.starts_with("self.")
+                                            | name.starts_with("root.")
+                                            | name.starts_with("context.")
+                                            | name.starts_with("i18n."),
                                         name.contains("::"),
                                     ) {
-                                        (false, false, false) => ArgumentName::ArgumentKey(
+                                        (false, false) => ArgumentName::ArgumentKey(
                                             ArgumentKey::Name(name.to_string()),
                                         ),
-                                        (false, false, true) => {
+                                        (false, true) => {
                                             ArgumentName::Const(NameRef::Other(name.to_string()))
                                         }
-                                        (ref_self, _, _) => ArgumentName::Const(NameRef::Ast {
-                                            origin: if ref_self {
+                                        (true, _) => ArgumentName::Const(NameRef::Ast {
+                                            origin: if name.starts_with("self.") {
                                                 AstRefOrigin::SelfNode
-                                            } else {
+                                            } else if name.starts_with("root.") {
                                                 AstRefOrigin::RootNode
+                                            } else if name.starts_with("context.") {
+                                                AstRefOrigin::ContextNode
+                                            } else {
+                                                AstRefOrigin::I18nNode
                                             },
                                             path: name[5..]
                                                 .split(".")
