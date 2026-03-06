@@ -60,7 +60,6 @@ impl ToTokens for ValueWrapper {
         );
 
         let by_path_return_value = match &self.ty {
-            // TODO: Format?!
             RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
                 quote! { self._self().by_path(path) }
             }

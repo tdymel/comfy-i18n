@@ -22,7 +22,6 @@ pub fn array_wrapper(
     );
 
     let by_path_return_value = match &ty {
-        // TODO: Format?!
         RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
             quote! { self[index].by_path(path) }
         }

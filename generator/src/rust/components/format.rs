@@ -13,8 +13,9 @@ pub struct Format {
     pub name: NamePascalCase,
     pub context_key: Path,
     pub template: Template,
-    pub parent_struct: Path,
+    pub parent_path: Path,
     pub root_name: NameSnakeCase,
+    pub is_parent_struct: bool
 }
 
 impl Format {
@@ -22,15 +23,17 @@ impl Format {
         name: NamePascalCase,
         context_key: Path,
         template: Template,
-        parent_struct: Path,
+        parent_path: Path,
         root_name: NameSnakeCase,
+        is_parent_struct: bool
     ) -> Self {
         Self {
             name,
             context_key,
             template,
-            parent_struct,
+            parent_path,
             root_name,
+            is_parent_struct
         }
     }
 }
@@ -102,7 +105,7 @@ impl ToTokens for Format {
                             }),
                         AstRefOrigin::SelfNode => {
                             let access_path = self
-                                .parent_struct
+                                .parent_path
                                 .clone()
                                 .prepend_mod(self.root_name.clone())
                                 .clear_ty()
@@ -115,7 +118,7 @@ impl ToTokens for Format {
                         },
                         AstRefOrigin::ContextNode => {
                             let access_path = self
-                                .parent_struct
+                                .parent_path
                                 .clone()
                                 .clear_ty()
                                 .to_access_path();
@@ -127,7 +130,7 @@ impl ToTokens for Format {
                         },
                         AstRefOrigin::I18nNode => {
                             let mut access_gen_path = self
-                                .parent_struct
+                                .parent_path
                                 .clone();
                             let context = access_gen_path.pop_front().unwrap(); 
                             let access_path = access_gen_path
@@ -156,7 +159,7 @@ impl ToTokens for Format {
             })
             .collect::<Vec<_>>();
 
-        let parent_struct_path = &self.parent_struct.ty();
+        let parent_struct_path = &self.parent_path.ty();
         let field_name = self.name.to_snake_case();
         let context_key = &self.context_key;
 
@@ -195,12 +198,16 @@ impl ToTokens for Format {
             }
 
             #hackfn
-
-            impl super::#parent_struct_path {
-                pub fn #field_name(&'static self #(, #format_arg_names: #format_arg_types)*) -> String {
-                    self.#value_fn_name()(#(#format_arg_names),*)
-                }
-            }
         });
+
+        if self.is_parent_struct {
+            tokens.extend(quote! {
+                impl super::#parent_struct_path {
+                    pub fn #field_name(&'static self #(, #format_arg_names: #format_arg_types)*) -> String {
+                        self.#value_fn_name()(#(#format_arg_names),*)
+                    }
+                }
+            });
+        }
     }
 }

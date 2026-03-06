@@ -34,27 +34,26 @@ impl Parse for I18n {
                     &ast.value
                 {
                     let path = current_dir.join(path);
-                    if path.is_file() {
-                        // TODO: Check source format and use correct parser
+                    if !path.is_file() {
                         // TODO: Error handling
-                        let mut file = std::fs::File::open(path).unwrap();
-                        let mut contents = String::new();
-                        file.read_to_string(&mut contents).unwrap();
-                        let ts_content = contents.to_basic_token_stream();
-                        let id = ast.identifier.to_string().to_basic_token_stream();
-                        return quote! {
-                            #id: {
-                                #ts_content
-                            }
-                        }
-                        .parse_field()
-                        .unwrap()
-                        .into();
-                    } else if path.is_dir() {
-                        todo!()
-                    } else {
-                        panic!("Path points to neither file not folder");
+                        panic!("Expected file path!")
                     }
+
+                    // TODO: Check source format and use correct parser
+                    // TODO: Error handling
+                    let mut file = std::fs::File::open(path).unwrap();
+                    let mut contents = String::new();
+                    file.read_to_string(&mut contents).unwrap();
+                    let ts_content = contents.to_basic_token_stream();
+                    let id = ast.identifier.to_string().to_basic_token_stream();
+                    return quote! {
+                        #id: {
+                            #ts_content
+                        }
+                    }
+                    .parse_field()
+                    .unwrap()
+                    .into();
                 }
 
                 ast
@@ -193,6 +192,13 @@ impl ToTokens for I18n {
                             template.clone(),
                             self.context.relative_path_to_root(&node.parent.unwrap()),
                             self.context.root_name(),
+                            matches!(
+                                self.context.get(&node.parent.unwrap()).value,
+                                NodeValue::Composite {
+                                    value: CompositeValue::Struct,
+                                    ..
+                                }
+                            ),
                         ),
                     );
                 }
