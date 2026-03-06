@@ -145,8 +145,7 @@ impl ToTokens for T {
             let new_path = if args.is_empty() {
                 new_path.to_basic_token_stream()
             } else {
-                format!("{}{}", &new_path[..new_path.len() - 2], fn_suffix)
-                    .to_basic_token_stream()
+                format!("{}{}", &new_path[..new_path.len() - 2], fn_suffix).to_basic_token_stream()
             };
 
             tokens.extend(quote! { #context.#new_path })

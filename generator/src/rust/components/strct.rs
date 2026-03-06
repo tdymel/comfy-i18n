@@ -60,7 +60,7 @@ pub fn strct(
             if is_template {
                 fn_name = Some(name.clone().concat("value".into()));
             }
-            
+
             fallback_fn(
                 !is_template,
                 &name,

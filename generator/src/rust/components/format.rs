@@ -15,7 +15,7 @@ pub struct Format {
     pub template: Template,
     pub parent_path: Path,
     pub root_name: NameSnakeCase,
-    pub is_parent_struct: bool
+    pub is_parent_struct: bool,
 }
 
 impl Format {
@@ -25,7 +25,7 @@ impl Format {
         template: Template,
         parent_path: Path,
         root_name: NameSnakeCase,
-        is_parent_struct: bool
+        is_parent_struct: bool,
     ) -> Self {
         Self {
             name,
@@ -33,7 +33,7 @@ impl Format {
             template,
             parent_path,
             root_name,
-            is_parent_struct
+            is_parent_struct,
         }
     }
 }
@@ -132,7 +132,7 @@ impl ToTokens for Format {
                             let mut access_gen_path = self
                                 .parent_path
                                 .clone();
-                            let context = access_gen_path.pop_front().unwrap(); 
+                            let context = access_gen_path.pop_front().unwrap();
                             let access_path = access_gen_path
                                 .clone()
                                 .clear_ty()

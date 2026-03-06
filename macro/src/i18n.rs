@@ -1,6 +1,8 @@
 use std::io::Read;
 
-use comfy_i18n_ast::{Ast, CompositeValue, Identifier, LiteralValue, NodeValue, StringValue};
+use comfy_i18n_ast::{
+    Ast, CompositeValue, Identifier, LiteralValue, NodeValue, SpannedAst, StringValue,
+};
 use comfy_i18n_generator::{
     components::{Format, Implementation, Initialization, array_wrapper, strct, tuple_wrapper},
     rust_generator::{Context, Path, RustGenerator, RustValue},
@@ -23,10 +25,11 @@ impl Parse for I18n {
         let cargo_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is empty");
         let current_dir = std::path::PathBuf::from(cargo_dir);
 
-        let localizations = input
+        let mut localizations = Vec::new();
+        for ast_res in input
             .parse::<proc_macro2::TokenStream>()?
             .parse_fields()
-            .unwrap()
+            .map_err(|err| input.error(err.to_string()))?
             .into_iter()
             .map(Ast::from)
             .map(|ast| {
@@ -35,30 +38,30 @@ impl Parse for I18n {
                 {
                     let path = current_dir.join(path);
                     if !path.is_file() {
-                        // TODO: Error handling
-                        panic!("Expected file path!")
+                        return Err(input.error("Expected file path"));
                     }
 
-                    // TODO: Check source format and use correct parser
-                    // TODO: Error handling
-                    let mut file = std::fs::File::open(path).unwrap();
+                    let mut file = std::fs::File::open(path)
+                        .map_err(|_| input.error("Unable to open file"))?;
                     let mut contents = String::new();
-                    file.read_to_string(&mut contents).unwrap();
-                    let ts_content = contents.to_basic_token_stream();
-                    let id = ast.identifier.to_string().to_basic_token_stream();
-                    return quote! {
-                        #id: {
-                            #ts_content
-                        }
-                    }
-                    .parse_field()
-                    .unwrap()
-                    .into();
+                    file.read_to_string(&mut contents)
+                        .map_err(|_| input.error("Failed to read file content"))?;
+
+                    return Ok(Ast::from(SpannedAst::new(
+                        ast.identifier,
+                        proc_macro2::Span::call_site(),
+                        contents
+                            .to_basic_token_stream()
+                            .parse_node_value()
+                            .map_err(|err| input.error(err.to_string()))?,
+                    )));
                 }
 
-                ast
+                Ok(ast)
             })
-            .collect::<Vec<_>>();
+        {
+            localizations.push(ast_res?);
+        }
 
         let context = Context::new(localizations, name.to_string().into());
 
