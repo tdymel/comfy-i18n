@@ -197,12 +197,6 @@ impl ToTokens for Format {
             #hackfn
 
             impl super::#parent_struct_path {
-                // TODO: Visibility
-                pub fn #value_fn_name(&'static self) -> &'static #format_name {
-                    // TODO: Fallback!
-                    self.#field_name.as_ref().unwrap()
-                }
-
                 pub fn #field_name(&'static self #(, #format_arg_names: #format_arg_types)*) -> String {
                     self.#value_fn_name()(#(#format_arg_names),*)
                 }

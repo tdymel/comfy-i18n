@@ -6,7 +6,9 @@ use crate::{
 };
 
 pub fn fallback_fn(
+    public: bool,
     field_name: &NameSnakeCase,
+    function_name: Option<NameSnakeCase>,
     ty: &RustType,
     context_key: &Path,
     access_path: proc_macro2::TokenStream,
@@ -22,8 +24,15 @@ pub fn fallback_fn(
         })
         .collect::<Vec<_>>();
 
+    let fn_name = function_name.unwrap_or(field_name.clone());
+    let pub_mod = if public {
+        quote! { pub }
+    } else {
+        quote! {}
+    };
+
     quote! {
-        pub fn #field_name(&'static self) -> &'static #ty {
+        #pub_mod fn #fn_name(&'static self) -> &'static #ty {
             let mut contexts = [None; #context_key::amount()];
             #(#contexts)*
             if contexts.contains(&Some(self.context)) {

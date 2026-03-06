@@ -132,7 +132,7 @@ impl ToTokens for T {
         let fn_suffix = if args.is_empty() {
             quote! {}
         } else {
-            quote! { .format(#(#args),*) }
+            quote! { (#(#args),*) }
         };
 
         if let KeyKind::Static(key) = &self.translation_key {
@@ -145,7 +145,7 @@ impl ToTokens for T {
             let new_path = if args.is_empty() {
                 new_path.to_basic_token_stream()
             } else {
-                format!("{}_value(){}", &new_path[..new_path.len() - 2], fn_suffix)
+                format!("{}{}", &new_path[..new_path.len() - 2], fn_suffix)
                     .to_basic_token_stream()
             };
 

@@ -49,7 +49,9 @@ impl ToTokens for ValueWrapper {
         );
 
         let fallback_fn = fallback_fn(
+            true,
             &"_self".into(),
+            None,
             ty,
             context_path,
             access_path,

@@ -50,16 +50,21 @@ pub fn strct(
 
     let fns = children
         .values()
-        .filter(|ast| {
-            !matches!(
-                ast.value,
-                NodeValue::Literal(LiteralValue::String(StringValue::Template(..)))
-            )
-        })
         .map(|ast| {
             let name = NameSnakeCase::from(ast.identifier.clone());
+            let is_template = matches!(
+                ast.value,
+                NodeValue::Literal(LiteralValue::String(StringValue::Template(..)))
+            );
+            let mut fn_name = None;
+            if is_template {
+                fn_name = Some(name.clone().concat("value".into()));
+            }
+            
             fallback_fn(
+                !is_template,
                 &name,
+                fn_name,
                 &RustType::new(ast, context, &path),
                 &context.context_key(),
                 absolute_path.to_access_path().to_basic_token_stream(),
