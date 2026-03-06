@@ -10,9 +10,13 @@ impl NamePascalCase {
     pub fn to_snake_case(&self) -> NameSnakeCase {
         let mut snake_case = String::new();
 
-        for (i, ch) in self.0.chars().enumerate() {
-            if ch.is_uppercase() && i != 0 {
+        let mut encountered_lower_case = false;
+        for ch in self.0.chars() {
+            if ch.is_uppercase() && encountered_lower_case {
                 snake_case.push('_');
+                encountered_lower_case = false;
+            } else if ch.is_lowercase() {
+                encountered_lower_case = true;
             }
             snake_case.push(ch);
         }

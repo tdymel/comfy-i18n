@@ -9,6 +9,7 @@ pub struct Context {
     localizations: Vec<Ast>,
     id_to_path: HashMap<NodeId, comfy_i18n_ast::Path>,
     path_to_id: HashMap<comfy_i18n_ast::Path, NodeId>,
+    reference_tree: Ast,
 }
 
 impl Context {
@@ -29,11 +30,18 @@ impl Context {
                 acc
             });
 
+        let mut ref_locals = localizations.clone();
+        let mut reference_tree = ref_locals.remove(0);
+        for ast in ref_locals {
+            reference_tree.merge(ast);
+        }
+
         Self {
             root_name,
             localizations,
             id_to_path,
             path_to_id,
+            reference_tree
         }
     }
 
@@ -59,11 +67,7 @@ impl Context {
     }
 
     pub fn reference_tree(&self) -> &Ast {
-        // TODO: Merge trees for the future
-        self.localizations
-            .iter()
-            .max_by_key(|localization| localization.size())
-            .unwrap()
+        &self.reference_tree
     }
 
     pub fn context_key(&self) -> Path {
