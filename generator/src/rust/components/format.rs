@@ -97,7 +97,7 @@ impl ToTokens for Format {
                     let access_path = match origin {
                         AstRefOrigin::RootNode => path
                             .iter()
-                            .fold(format!("self.comfy_i18n_context.{}()", self.root_name), |acc, it| {
+                            .fold(format!("self.context.{}()", self.root_name), |acc, it| {
                                 format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
                             }),
                         AstRefOrigin::SelfNode => {
@@ -109,7 +109,7 @@ impl ToTokens for Format {
                                 .to_access_path();
                             path
                             .iter()
-                            .fold(format!("self.comfy_i18n_context.{}", access_path), |acc, it| {
+                            .fold(format!("self.context.{}", access_path), |acc, it| {
                                 format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
                             })
                         },
@@ -121,7 +121,7 @@ impl ToTokens for Format {
                                 .to_access_path();
                             path
                             .iter()
-                            .fold(format!("self.comfy_i18n_context.{}", access_path), |acc, it| {
+                            .fold(format!("self.context.{}", access_path), |acc, it| {
                                 format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
                             })
                         },
@@ -173,13 +173,13 @@ impl ToTokens for Format {
         tokens.extend(quote! {
             #[derive(Clone)]
             pub struct #format_name {
-                comfy_i18n_context: #context_key,
+                context: #context_key,
                 template: comfy_i18n::macro_use::Template
             }
 
             impl #format_name {
-                pub fn new(comfy_i18n_context: #context_key, template: comfy_i18n::macro_use::Template) -> Self {
-                    Self { comfy_i18n_context, template }
+                pub fn new(context: #context_key, template: comfy_i18n::macro_use::Template) -> Self {
+                    Self { context, template }
                 }
                 // TODO: Handle const arguments
                 // TODO: Apparently specifying these arguments here in the 

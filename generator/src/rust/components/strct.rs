@@ -17,7 +17,7 @@ pub fn strct(
     node: &Ast,
     children: &HashMap<Identifier, Ast>,
     context: &Context,
-    with_comfy_i18n_context: bool,
+    with_context: bool,
 ) -> proc_macro2::TokenStream {
     let path = context.relative_path_to_root(&node.id);
     let strct_name = if path.has_no_mods() {
@@ -36,9 +36,9 @@ pub fn strct(
         })
         .collect::<Vec<_>>();
     fields.sort_by_key(|f1| f1.name.to_string());
-    if with_comfy_i18n_context {
+    if with_context {
         fields.push(Field::new(
-            "comfy_i18n_context".into(),
+            "context".into(),
             RustType::Other(context.context_key().clone()),
         ));
     }
@@ -85,7 +85,6 @@ pub fn strct(
 
     let by_path_match_arms = fields
         .iter()
-        .filter(|it| !it.name.to_string().contains("comfy_i18n"))
         .map(|field| {
             match &field.ty {
                 RustType::Format(_) => format!("\"{0}\" => self.{0}_value()", field.name),
@@ -98,7 +97,6 @@ pub fn strct(
         })
         .collect::<Vec<_>>();
 
-    // TODO: Not every type will support copy! Validation!
     quote! {
         #[derive(Clone)]
         pub struct #strct_name {
@@ -115,6 +113,10 @@ pub fn strct(
             }
 
             #(#fns)*
+
+            pub const fn context(&'static self) -> &'static crate::I18n {
+                &self.context
+            }
 
             pub fn by_path(
                 &'static self,
@@ -168,7 +170,6 @@ impl ToTokens for Struct {
             })
             .collect::<Vec<_>>();
 
-        // TODO: Not every type will support copy! Validation!
         tokens.extend(quote! {
             #[derive(Clone)]
             pub struct #name {

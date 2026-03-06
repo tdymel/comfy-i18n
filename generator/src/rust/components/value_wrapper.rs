@@ -68,13 +68,13 @@ impl ToTokens for ValueWrapper {
         tokens.extend(quote! {
             #[derive(Clone)]
             pub struct #name {
-                comfy_i18n_context: #context_path,
+                context: #context_path,
                 value: Option<#ty>
             }
 
             impl #name {
-                const fn new(comfy_i18n_context: #context_path, value: Option<#ty>) -> Self {
-                    Self { comfy_i18n_context, value }
+                const fn new(context: #context_path, value: Option<#ty>) -> Self {
+                    Self { context, value }
                 }
 
                 #fallback_fn

@@ -47,14 +47,6 @@ impl ToTokens for RustType {
                 }
                 _ => unreachable!(),
             },
-            // RustType::List { ty: rust_type, .. } => {
-            //     // TODO: Requires us to check if the children are Copy or not
-            //     // if let Some(amount) = amount {
-            //     //     quote! { [#rust_type; #amount]}
-            //     // } else {
-            //     quote! {Vec<#rust_type>}
-            //     // }
-            // }
             RustType::Format(path)
             | RustType::Tuple(path)
             | RustType::List(path)

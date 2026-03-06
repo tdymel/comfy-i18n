@@ -26,11 +26,11 @@ pub fn fallback_fn(
         pub fn #field_name(&'static self) -> &'static #ty {
             let mut contexts = [None; #context_key::amount()];
             #(#contexts)*
-            if contexts.contains(&Some(self.comfy_i18n_context)) {
+            if contexts.contains(&Some(self.context)) {
                 return self.#access_suffix;
             }
 
-            self.comfy_i18n_context.fallback(contexts).#access_path.#access_suffix
+            self.context.fallback(contexts).#access_path.#access_suffix
         }
     }
 }

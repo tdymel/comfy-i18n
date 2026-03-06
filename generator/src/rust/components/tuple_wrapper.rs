@@ -71,7 +71,7 @@ pub fn tuple_wrapper(
         .iter()
         .enumerate()
         .map(|(index, _)| {
-            format!("Elem{0}::new(comfy_i18n_context, value.{0})", index).to_basic_token_stream()
+            format!("Elem{0}::new(context, value.{0})", index).to_basic_token_stream()
         })
         .collect::<Vec<_>>();
 
@@ -80,7 +80,7 @@ pub fn tuple_wrapper(
         .iter()
         .enumerate()
         .map(|(index, _)| {
-            format!("self.comfy_i18n_context.{}.{}()", access_path, index).to_basic_token_stream()
+            format!("self.context.{}.{}()", access_path, index).to_basic_token_stream()
         })
         .collect::<Vec<_>>();
 
@@ -95,14 +95,14 @@ pub fn tuple_wrapper(
     quote! {
         #[derive(Clone)]
         pub struct #name {
-            comfy_i18n_context: #context_key,
+            context: #context_key,
             value: (#(#wrapper_tys),*)
         }
 
         impl #name {
-            pub fn new(comfy_i18n_context: #context_key, value: (#(#tys),*)) -> Self {
+            pub fn new(context: #context_key, value: (#(#tys),*)) -> Self {
                 Self {
-                    comfy_i18n_context,
+                    context,
                     value: (
                         #(#values_self),*
                     )
