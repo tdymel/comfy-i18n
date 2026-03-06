@@ -55,19 +55,28 @@ fn fmt7() {
 }
 
 i18n!(
-    self_references,
+    references,
     DE: {
+        other_self: "{self.nested.world}",
+        context_ref: "{context.references.nested.world}",
+        i18n_ref: "{i18n.EN.references.nested.world}",
         nested: {
             value: "Hallo, {self.world}!",
             value2: "Hallo, {root.nested.world}!",
             world: "Welt"
         }
     },
+    EN: {
+        hello: "Hello"
+    }
 );
 
 #[test]
 fn self_ref() {
-    assert_eq!(I18n::DE.self_references().nested().value(), "Hallo, Welt!");
+    assert_eq!(I18n::DE.references().nested().value(), "Hallo, Welt!");
 
-    assert_eq!(I18n::DE.self_references().nested().value2(), "Hallo, Welt!");
+    assert_eq!(I18n::DE.references().nested().value2(), "Hallo, Welt!");
+    assert_eq!(I18n::DE.references().other_self(), "Welt");
+    assert_eq!(I18n::DE.references().context_ref(), "Welt");
+    assert_eq!(I18n::DE.references().i18n_ref(), "Welt");
 }

@@ -233,13 +233,20 @@ fn parse_template(input: &str, span: Span) -> Result<Vec<Piece>, Error> {
                                             } else {
                                                 AstRefOrigin::I18nNode
                                             },
-                                            path: name[5..]
-                                                .split(".")
-                                                .map(|part| match part.parse::<usize>() {
-                                                    Ok(index) => Identifier::TupleIndex(index),
-                                                    Err(_) => Identifier::Field(part.to_string()),
-                                                })
-                                                .collect(),
+                                            path: {
+                                                let mut result = name
+                                                    .split(".")
+                                                    .map(|part| match part.parse::<usize>() {
+                                                        Ok(index) => Identifier::TupleIndex(index),
+                                                        Err(_) => {
+                                                            Identifier::Field(part.to_string())
+                                                        }
+                                                    })
+                                                    .collect::<Vec<_>>();
+                                                result.remove(0);
+
+                                                result
+                                            },
                                         }),
                                     }
                                 }

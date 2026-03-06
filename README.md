@@ -13,6 +13,8 @@ Comfy I18n aims to have the most ergnomical and intuitive API design possible.
 This is a small showcase of the API. Please refer to the examples in the documentation for a more detailed overview.
 
 ```rust
+// TODO: Improve Readme. Make it easy and concise. Add playgrounds where examples are.
+
 // Must be used in the crate root
 // Define the available contexts
 i18n_init!(

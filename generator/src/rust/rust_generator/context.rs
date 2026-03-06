@@ -41,7 +41,7 @@ impl Context {
             localizations,
             id_to_path,
             path_to_id,
-            reference_tree
+            reference_tree,
         }
     }
 

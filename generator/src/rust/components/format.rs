@@ -117,30 +117,19 @@ impl ToTokens for Format {
                             })
                         },
                         AstRefOrigin::ContextNode => {
-                            let access_path = self
-                                .parent_path
-                                .clone()
-                                .clear_ty()
-                                .to_access_path();
                             path
                             .iter()
-                            .fold(format!("self.context.{}", access_path), |acc, it| {
+                            .fold("self.context".to_string(), |acc, it| {
                                 format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
                             })
                         },
                         AstRefOrigin::I18nNode => {
-                            let mut access_gen_path = self
-                                .parent_path
-                                .clone();
-                            let context = access_gen_path.pop_front().unwrap();
-                            let access_path = access_gen_path
-                                .clone()
-                                .clear_ty()
-                                .to_access_path();
+                            let mut path = path.clone();
+                            let context = path.remove(0).to_string();
 
                             path
                             .iter()
-                            .fold(format!("crate::I18n::{}.{}", context.to_uppercase(), access_path), |acc, it| {
+                            .fold(format!("crate::I18n::{}", context.to_uppercase()), |acc, it| {
                                 format!("{}.{}()", acc, NameSnakeCase::from(it.clone()))
                             })
                         },
