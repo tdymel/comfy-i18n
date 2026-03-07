@@ -4,7 +4,7 @@ use comfy_i18n_ast::{Ast, Identifier};
 use quote::quote;
 
 use crate::{
-    components::ValueWrapper,
+    components::value_wrapper,
     rust_generator::{Context, RustType},
     shared::{NameSnakeCase, ToBasicTokenStream},
 };
@@ -29,11 +29,13 @@ pub fn tuple_wrapper(
         .map(|(_, field)| RustType::new(field, context, &path))
         .collect::<Vec<_>>();
 
-    let elems = tys
+    let elems = pairs
         .iter()
         .enumerate()
-        .map(|(index, ty)| {
-            ValueWrapper::new(
+        .map(|(index, (_, ast))| {
+            value_wrapper(
+                ast,
+                context,
                 path.clone()
                     .prepend_mod(context.root_name())
                     .add_mod(NameSnakeCase::tuple_index(index))
@@ -43,7 +45,7 @@ pub fn tuple_wrapper(
                     .context_variants()
                     .map(|it| it.to_string())
                     .collect(),
-                ty.clone(),
+                RustType::new(ast, context, &path),
             )
         })
         .collect::<Vec<_>>();
@@ -93,8 +95,14 @@ pub fn tuple_wrapper(
         })
         .collect::<Vec<_>>();
 
+    let is_copy = if context.is_copy(&node.id) {
+        quote! { , Copy }
+    } else {
+        quote! {}
+    };
+
     quote! {
-        #[derive(Clone)]
+        #[derive(Clone #is_copy)]
         pub struct #name {
             context: #context_key,
             value: (#(#wrapper_tys),*)

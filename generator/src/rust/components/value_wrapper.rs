@@ -1,94 +1,80 @@
-use quote::{ToTokens, quote};
+use comfy_i18n_ast::Ast;
+use quote::quote;
 
 use crate::{
     components::{fallback_fn, hackfn},
-    rust_generator::{Path, RustType},
+    rust_generator::{Context, Path, RustType},
     shared::ToBasicTokenStream,
 };
 
-pub struct ValueWrapper {
+pub fn value_wrapper(
+    node: &Ast,
+    context: &Context,
     absolute_path: Path,
     context_path: Path,
     available_variants: Vec<String>,
     ty: RustType,
-}
-
-impl ValueWrapper {
-    pub const fn new(
-        absolute_path: Path,
-        context_path: Path,
-        available_variants: Vec<String>,
-        ty: RustType,
-    ) -> Self {
-        Self {
-            absolute_path,
-            context_path,
-            available_variants,
-            ty,
-        }
+) -> proc_macro2::TokenStream {
+    let name = absolute_path.ty().unwrap();
+    let mut access_path = absolute_path.to_access_path();
+    if access_path.ends_with("()") {
+        access_path = access_path[..access_path.len() - 2].to_string();
     }
-}
+    let access_path = access_path.to_basic_token_stream();
+    let hackfn = hackfn(
+        name,
+        &"_self".into(),
+        &Vec::new(),
+        &Vec::new(),
+        quote! { &'static #ty},
+    );
 
-impl ToTokens for ValueWrapper {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        let name = self.absolute_path.ty().unwrap();
-        let context_path = &self.context_path;
-        let ty = &self.ty;
+    let fallback_fn = fallback_fn(
+        true,
+        &"_self".into(),
+        None,
+        &ty,
+        &context_path,
+        access_path,
+        "value.as_ref().unwrap()".to_basic_token_stream(),
+        &available_variants,
+    );
 
-        let mut access_path = self.absolute_path.to_access_path();
-        if access_path.ends_with("()") {
-            access_path = access_path[..access_path.len() - 2].to_string();
+    let by_path_return_value = match &ty {
+        RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
+            quote! { self._self().by_path(path) }
         }
-        let access_path = access_path.to_basic_token_stream();
-        let hackfn = hackfn(
-            name,
-            &"_self".into(),
-            &Vec::new(),
-            &Vec::new(),
-            quote! { &'static #ty},
-        );
+        _ => quote! { self._self() },
+    };
 
-        let fallback_fn = fallback_fn(
-            true,
-            &"_self".into(),
-            None,
-            ty,
-            context_path,
-            access_path,
-            "value.as_ref().unwrap()".to_basic_token_stream(),
-            &self.available_variants,
-        );
+    let is_copy = if context.is_copy(&node.id) {
+        quote! { , Copy }
+    } else {
+        quote! {}
+    };
 
-        let by_path_return_value = match &self.ty {
-            RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
-                quote! { self._self().by_path(path) }
-            }
-            _ => quote! { self._self() },
-        };
+    quote! {
+        #[derive(Clone #is_copy)]
+        pub struct #name {
+            context: #context_path,
+            value: Option<#ty>
+        }
 
-        tokens.extend(quote! {
-            #[derive(Clone)]
-            pub struct #name {
-                context: #context_path,
-                value: Option<#ty>
+        impl #name {
+            const fn new(context: #context_path, value: Option<#ty>) -> Self {
+                Self { context, value }
             }
 
-            impl #name {
-                const fn new(context: #context_path, value: Option<#ty>) -> Self {
-                    Self { context, value }
-                }
+            #fallback_fn
 
-                #fallback_fn
-
-                pub fn by_path(
-                    &'static self,
-                    path: std::collections::VecDeque<String>,
-                ) -> &'static (dyn std::any::Any + Sync) {
-                    #by_path_return_value
-                }
+            pub fn by_path(
+                &'static self,
+                path: std::collections::VecDeque<String>,
+            ) -> &'static (dyn std::any::Any + Sync) {
+                #by_path_return_value
             }
+        }
 
-            #hackfn
-        });
+        #hackfn
     }
 }

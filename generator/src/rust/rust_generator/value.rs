@@ -40,7 +40,7 @@ pub enum RustValue {
         value: Box<RustValue>,
         amount: usize,
     },
-    List(Vec<RustValue>),
+    List(Vec<RustValue>, bool),
     Some(Box<RustValue>),
     None,
     Cast(proc_macro2::TokenStream),
@@ -113,10 +113,12 @@ impl ToTokens for RustValue {
             RustValue::ListRepeated { value, amount } => {
                 quote! { [#value; #amount] }
             }
-            RustValue::List(values) => {
-                // TODO
-                // quote! { [#(#values),*] }
-                quote! { vec![#(#values),*] }
+            RustValue::List(values, is_copy) => {
+                if *is_copy {
+                    quote! { [#(#values),*] }
+                } else {
+                    quote! { vec![#(#values),*] }
+                }
             }
             RustValue::Some(val) => quote! { Some(#val) },
             RustValue::None => quote! { None },
@@ -195,10 +197,22 @@ impl RustValue {
                             // TODO: Handle fields that dont exist
                             if values.len() == 1 {
                                 let (_, value) = values.remove(0);
-                                // TODO: Requires checking if children are copy
-                                RustValue::List(std::iter::repeat_n(value, *list_size).collect())
+                                if context.is_copy(&ast_orig.id) {
+                                    RustValue::ListRepeated {
+                                        value: Box::new(value),
+                                        amount: *list_size,
+                                    }
+                                } else {
+                                    RustValue::List(
+                                        std::iter::repeat_n(value, *list_size).collect(),
+                                        false,
+                                    )
+                                }
                             } else {
-                                RustValue::List(values.into_iter().map(|(_, v)| v).collect())
+                                RustValue::List(
+                                    values.into_iter().map(|(_, v)| v).collect(),
+                                    context.is_copy(&ast_orig.id),
+                                )
                             },
                         ],
                     },

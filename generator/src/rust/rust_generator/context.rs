@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use comfy_i18n_ast::{Ast, Identifier, NodeId};
+use comfy_i18n_ast::{Ast, Identifier, LiteralValue, NodeId, NodeValue, StringValue};
 
 use crate::{rust_generator::Path, shared::NameSnakeCase};
 
@@ -9,6 +9,7 @@ pub struct Context {
     localizations: Vec<Ast>,
     id_to_path: HashMap<NodeId, comfy_i18n_ast::Path>,
     path_to_id: HashMap<comfy_i18n_ast::Path, NodeId>,
+    relative_path_to_is_copy: HashMap<comfy_i18n_ast::Path, bool>,
     reference_tree: Ast,
 }
 
@@ -36,11 +37,15 @@ impl Context {
             reference_tree.merge(ast);
         }
 
+        let mut relative_path_to_is_copy = HashMap::new();
+        create_is_copy_tree(&reference_tree, &id_to_path, &mut relative_path_to_is_copy);
+
         Self {
             root_name,
             localizations,
             id_to_path,
             path_to_id,
+            relative_path_to_is_copy,
             reference_tree,
         }
     }
@@ -60,6 +65,21 @@ impl Context {
         } else {
             path
         }
+    }
+
+    pub fn is_copy(&self, node_id: &NodeId) -> bool {
+        let relative_comfy_path = self
+            .id_to_path
+            .get(node_id)
+            .unwrap()
+            .clone()
+            .remove(0)
+            .unwrap();
+
+        self.relative_path_to_is_copy
+            .get(&relative_comfy_path)
+            .cloned()
+            .unwrap_or(false)
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &Ast> {
@@ -136,4 +156,22 @@ impl Context {
     pub fn root_name(&self) -> NameSnakeCase {
         self.root_name.clone()
     }
+}
+
+fn create_is_copy_tree(
+    node: &Ast,
+    id_to_path: &HashMap<NodeId, comfy_i18n_ast::Path>,
+    relative_path_to_is_copy: &mut HashMap<comfy_i18n_ast::Path, bool>,
+) -> bool {
+    let is_copy = match &node.value {
+        NodeValue::Literal(LiteralValue::String(StringValue::Template(_))) => false,
+        NodeValue::Composite { children, .. } => children
+            .iter()
+            .all(|(_, it)| create_is_copy_tree(it, id_to_path, relative_path_to_is_copy)),
+        _ => true,
+    };
+    let relative_comfy_path = id_to_path.get(&node.id).unwrap().clone().remove(0).unwrap();
+    relative_path_to_is_copy.insert(relative_comfy_path, is_copy);
+
+    is_copy
 }

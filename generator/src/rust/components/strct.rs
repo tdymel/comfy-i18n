@@ -102,8 +102,14 @@ pub fn strct(
         })
         .collect::<Vec<_>>();
 
+    let is_copy = if context.is_copy(&node.id) {
+        quote! { , Copy }
+    } else {
+        quote! {}
+    };
+
     quote! {
-        #[derive(Clone)]
+        #[derive(Clone #is_copy)]
         pub struct #strct_name {
             #(#fields),*
         }

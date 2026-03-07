@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use comfy_i18n_ast::{Ast, Identifier};
+use comfy_i18n_ast::{Ast, CompositeValue, Identifier, NodeValue};
 use quote::quote;
 
 use crate::{
@@ -28,18 +28,38 @@ pub fn array_wrapper(
         _ => quote! { &self[index] },
     };
 
+    let mut copy = quote! {};
+    // TODO: If the lists in all value contexts have a different length, its also not copy
+    let list_ty;
+    if context.is_copy(&node.id) {
+        let list_size = if let NodeValue::Composite {
+            value: CompositeValue::List { amount },
+            ..
+        } = &node.value
+        {
+            *amount
+        } else {
+            children.len()
+        };
+
+        copy = quote! { , Copy };
+        list_ty = quote! { [#ty; #list_size] };
+    } else {
+        list_ty = quote! { Vec<#ty> };
+    }
+
     quote! {
-        #[derive(Clone)]
+        #[derive(Clone #copy)]
         pub struct #name {
-            value: Vec<#ty>
+            value: #list_ty
         }
 
         impl #name {
-            pub fn new(value: Vec<#ty>) -> Self {
+            pub fn new(value: #list_ty) -> Self {
                 Self { value }
             }
 
-            pub fn value(&'static self) -> &'static Vec<#ty> {
+            pub fn value(&'static self) -> &'static #list_ty {
                 &self.value
             }
 

@@ -18,4 +18,4 @@ pub use initialization::Initialization;
 pub use strct::{Field, Struct, strct};
 pub use tuple_wrapper::tuple_wrapper;
 pub use use_path::UsePath;
-pub use value_wrapper::ValueWrapper;
+pub use value_wrapper::value_wrapper;
