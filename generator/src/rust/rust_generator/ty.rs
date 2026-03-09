@@ -1,5 +1,5 @@
 use comfy_i18n_ast::{
-    Ast, CompositeValue, FloatValue, IntegerValue, LiteralValue, NodeValue, StringValue,
+    Ast, CompositeValue, FloatValue, IntegerValue, LiteralValue, NodeValue, StringValue, Template,
 };
 use quote::{ToTokens, quote};
 
@@ -18,7 +18,7 @@ pub enum RustType {
     Integer { unsigned: bool, bits: u8 },
     List(Path),
     Tuple(Path),
-    Format(Path),
+    Format(Path, Template),
     Struct(Path),
     Other(Path),
     Cast(proc_macro2::TokenStream),
@@ -49,7 +49,7 @@ impl ToTokens for RustType {
                 }
                 _ => unreachable!(),
             },
-            RustType::Format(path)
+            RustType::Format(path, ..)
             | RustType::Tuple(path)
             | RustType::List(path)
             | RustType::Struct(path)
@@ -93,10 +93,11 @@ impl RustType {
             NodeValue::Literal(literal_value) => match literal_value {
                 LiteralValue::String(string_value) => match string_value {
                     StringValue::Literal(_) => RustType::String,
-                    StringValue::Template(..) => RustType::Format(
+                    StringValue::Template(template) => RustType::Format(
                         context
                             .relative_path_to_root(&node.id)
                             .relative_to(relative_root),
+                        template.clone()
                     ),
                 },
                 LiteralValue::Char(_) => RustType::Char,

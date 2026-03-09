@@ -72,6 +72,7 @@ pub fn strct(
                 &context
                     .available_context_variants(&ast.id)
                     .collect::<Vec<String>>(),
+                false,
             )
         })
         .collect::<Vec<_>>();
@@ -92,8 +93,8 @@ pub fn strct(
         .iter()
         .map(|field| {
             match &field.ty {
-                RustType::Format(_) => format!("\"{0}\" => self.{0}_value()", field.name),
-                RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
+                RustType::Format(..) => format!("\"{0}\" => self.{0}_value()", field.name),
+                RustType::Struct(..) | RustType::Tuple(_) | RustType::List { .. } => {
                     format!("\"{0}\" => self.{0}().by_path(path)", field.name)
                 }
                 _ => format!("\"{0}\" => self.{0}()", field.name),

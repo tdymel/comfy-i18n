@@ -11,7 +11,7 @@ mod value_wrapper;
 
 pub use array_wrapper::array_wrapper;
 pub use fallback_fn::fallback_fn;
-pub use format::Format;
+pub use format::{Format, to_fmt_args};
 pub use hackfn::hackfn;
 pub use implementation::Implementation;
 pub use initialization::Initialization;

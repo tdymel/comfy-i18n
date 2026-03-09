@@ -1,4 +1,5 @@
 use comfy_i18n_ast::{ArgumentKey, ArgumentName, AstRefOrigin, NameRef, Template};
+use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 use crate::{
@@ -38,6 +39,36 @@ impl Format {
     }
 }
 
+pub fn to_fmt_args(template: &Template) -> (Vec<TokenStream>, Vec<TokenStream>) {
+    let mut non_const_arguments = template
+        .arguments()
+        .iter()
+        .filter_map(|(argument_name, specifier)| match argument_name {
+            ArgumentName::ArgumentKey(key) => Some((key, specifier.as_ref())),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    non_const_arguments.sort_by(|l, r| l.0.cmp(r.0));
+
+    let format_arg_names = non_const_arguments
+        .iter()
+        .map(|(name, ..)| format!("arg_{}", name).to_basic_token_stream())
+        .collect::<Vec<_>>();
+    let format_arg_types = non_const_arguments
+        .iter()
+        .map(|(_, specifier)| {
+            format!(
+                "&dyn core::fmt::{:?}",
+                specifier
+                    .map(|it| it.ty)
+                    .unwrap_or(comfy_i18n_ast::Type::Display)
+            )
+            .to_basic_token_stream()
+        })
+        .collect::<Vec<_>>();
+    (format_arg_names, format_arg_types)
+}
+
 impl ToTokens for Format {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let format_name = &self.name;
@@ -52,22 +83,7 @@ impl ToTokens for Format {
             .collect::<Vec<_>>();
         non_const_arguments.sort_by(|l, r| l.0.cmp(r.0));
 
-        let format_arg_names = non_const_arguments
-            .iter()
-            .map(|(name, ..)| format!("arg_{}", name).to_basic_token_stream())
-            .collect::<Vec<_>>();
-        let format_arg_types = non_const_arguments
-            .iter()
-            .map(|(_, specifier)| {
-                format!(
-                    "&dyn core::fmt::{:?}",
-                    specifier
-                        .map(|it| it.ty)
-                        .unwrap_or(comfy_i18n_ast::Type::Display)
-                )
-                .to_basic_token_stream()
-            })
-            .collect::<Vec<_>>();
+        let (format_arg_names, format_arg_types) = to_fmt_args(&self.template);
 
         let dfmt_arg_names = non_const_arguments
             .iter()

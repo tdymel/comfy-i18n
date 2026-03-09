@@ -1,6 +1,7 @@
 use quote::quote;
 
 use crate::{
+    components::to_fmt_args,
     rust_generator::{Path, RustType},
     shared::{NameSnakeCase, ToBasicTokenStream},
 };
@@ -14,6 +15,7 @@ pub fn fallback_fn(
     access_path: proc_macro2::TokenStream,
     access_suffix: proc_macro2::TokenStream,
     available_context_variants: &[String],
+    convert_format_fn: bool
 ) -> proc_macro2::TokenStream {
     let contexts = available_context_variants
         .iter()
@@ -31,8 +33,18 @@ pub fn fallback_fn(
         quote! {}
     };
 
+    let mut fmt_args = quote! {}; 
+    let mut access_suffix = access_suffix;
+    let mut return_ty = quote! { &'static #ty };
+    if convert_format_fn && let RustType::Format(_, template) = ty {
+        let (format_arg_names, format_arg_types) = to_fmt_args(template);
+        fmt_args = quote! { #(, #format_arg_names: #format_arg_types)* };
+        access_suffix = quote! { #access_suffix(#(#format_arg_names),*) };
+        return_ty = quote! { String };
+    };
+
     quote! {
-        #pub_mod fn #fn_name(&'static self) -> &'static #ty {
+        #pub_mod fn #fn_name(&'static self #fmt_args) -> #return_ty {
             let mut contexts = [None; #context_key::amount()];
             #(#contexts)*
             if contexts.contains(&Some(self.context)) {

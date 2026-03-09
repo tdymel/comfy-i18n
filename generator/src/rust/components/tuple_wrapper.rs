@@ -9,7 +9,6 @@ use crate::{
     shared::{NameSnakeCase, ToBasicTokenStream},
 };
 
-// TODO: Right now Format-Elements are not well supported
 pub fn tuple_wrapper(
     node: &Ast,
     children: &HashMap<Identifier, Ast>,
@@ -83,7 +82,7 @@ pub fn tuple_wrapper(
         .iter()
         .enumerate()
         .map(|(index, _)| {
-            format!("self.context.{}.{}()", access_path, index).to_basic_token_stream()
+            format!("self.context.{}.{}._self_value()", access_path, index).to_basic_token_stream()
         })
         .collect::<Vec<_>>();
 
