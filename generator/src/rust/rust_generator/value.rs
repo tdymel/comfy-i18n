@@ -194,7 +194,6 @@ impl RustValue {
                     CompositeValue::List { amount: list_size } => RustValue::Struct {
                         path: context.relative_path_to_root(&ast_orig.id),
                         fields: vec![
-                            // TODO: Handle fields that dont exist
                             if values.len() == 1 {
                                 let (_, value) = values.remove(0);
                                 if context.is_copy(&ast_orig.id) {
@@ -204,13 +203,19 @@ impl RustValue {
                                     }
                                 } else {
                                     RustValue::List(
-                                        std::iter::repeat_n(value, *list_size).collect(),
+                                        std::iter::repeat_n(value, *list_size)
+                                            .filter(|it| !matches!(it, RustValue::None))
+                                            .collect(),
                                         false,
                                     )
                                 }
                             } else {
                                 RustValue::List(
-                                    values.into_iter().map(|(_, v)| v).collect(),
+                                    values
+                                        .into_iter()
+                                        .map(|(_, v)| v)
+                                        .filter(|it| !matches!(it, RustValue::None))
+                                        .collect(),
                                     context.is_copy(&ast_orig.id),
                                 )
                             },

@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use comfy_i18n_ast::{Ast, Identifier, LiteralValue, NodeId, NodeValue, StringValue};
+use comfy_i18n_ast::{
+    Ast, CompositeValue, Identifier, LiteralValue, NodeId, NodeValue, StringValue,
+};
 
 use crate::{rust_generator::Path, shared::NameSnakeCase};
 
@@ -38,7 +40,12 @@ impl Context {
         }
 
         let mut relative_path_to_is_copy = HashMap::new();
-        create_is_copy_tree(&reference_tree, &id_to_path, &mut relative_path_to_is_copy);
+        create_is_copy_tree(
+            &reference_tree,
+            &id_to_path,
+            &localizations,
+            &mut relative_path_to_is_copy,
+        );
 
         Self {
             root_name,
@@ -161,16 +168,44 @@ impl Context {
 fn create_is_copy_tree(
     node: &Ast,
     id_to_path: &HashMap<NodeId, comfy_i18n_ast::Path>,
+    localizations: &Vec<Ast>,
     relative_path_to_is_copy: &mut HashMap<comfy_i18n_ast::Path, bool>,
 ) -> bool {
+    let relative_comfy_path = id_to_path.get(&node.id).unwrap().clone().remove(0).unwrap();
     let is_copy = match &node.value {
         NodeValue::Literal(LiteralValue::String(StringValue::Template(_))) => false,
-        NodeValue::Composite { children, .. } => children
-            .iter()
-            .all(|(_, it)| create_is_copy_tree(it, id_to_path, relative_path_to_is_copy)),
+        NodeValue::Composite {
+            children,
+            value: CompositeValue::List { amount },
+        } => {
+            let same_size = localizations.iter().all(|localization| {
+                if let Some(ast) = localization.by_path(&relative_comfy_path) {
+                    if let NodeValue::Composite {
+                        value:
+                            CompositeValue::List {
+                                amount: inner_amount,
+                            },
+                        ..
+                    } = &ast.value
+                    {
+                        inner_amount == amount && !children.is_empty()
+                    } else {
+                        true
+                    }
+                } else {
+                    true
+                }
+            });
+
+            children.iter().all(|(_, it)| {
+                create_is_copy_tree(it, id_to_path, localizations, relative_path_to_is_copy)
+            }) && same_size
+        }
+        NodeValue::Composite { children, .. } => children.iter().all(|(_, it)| {
+            create_is_copy_tree(it, id_to_path, localizations, relative_path_to_is_copy)
+        }),
         _ => true,
     };
-    let relative_comfy_path = id_to_path.get(&node.id).unwrap().clone().remove(0).unwrap();
     relative_path_to_is_copy.insert(relative_comfy_path, is_copy);
 
     is_copy

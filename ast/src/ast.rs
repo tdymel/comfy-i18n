@@ -95,8 +95,11 @@ impl Ast {
                     CompositeValue::Struct => {
                         assert!(matches!(node.identifier, Identifier::Field(..)))
                     }
-                    _ => {
+                    CompositeValue::Tuple => {
                         assert!(matches!(node.identifier, Identifier::TupleIndex(..)))
+                    }
+                    CompositeValue::List { .. } => {
+                        assert!(matches!(node.identifier, Identifier::ArrayIndex(..)))
                     }
                 }
 

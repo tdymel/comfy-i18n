@@ -29,7 +29,6 @@ pub fn array_wrapper(
     };
 
     let mut copy = quote! {};
-    // TODO: If the lists in all value contexts have a different length, its also not copy
     let list_ty;
     if context.is_copy(&node.id) {
         let list_size = if let NodeValue::Composite {

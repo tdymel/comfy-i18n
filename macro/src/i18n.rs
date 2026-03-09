@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use comfy_i18n_ast::{
-    Ast, CompositeValue, Identifier, LiteralValue, NodeValue, SpannedAst, StringValue,
+    Ast, CompositeValue, Identifier, LiteralValue, NodeValue, StringValue,
 };
 use comfy_i18n_generator::{
     components::{Format, Implementation, Initialization, array_wrapper, strct, tuple_wrapper},
