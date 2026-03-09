@@ -33,7 +33,11 @@ i18n!(
     fallback_test,
     DE: {
         value: (1, '2', "3"),
+        value2: (1, '2', "3"),
     },
+    EN: {
+        value2: (1, '2'),
+    }
 );
 
 #[test]
@@ -41,6 +45,10 @@ fn fallback() {
     assert_eq!(
         I18n::DE.fallback_test().value().value(),
         I18n::EN.fallback_test().value().value()
+    );
+    assert_eq!(
+        I18n::DE.fallback_test().value2().2(),
+        I18n::EN.fallback_test().value2().2()
     );
 }
 

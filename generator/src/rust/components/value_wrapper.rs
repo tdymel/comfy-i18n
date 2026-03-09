@@ -40,11 +40,25 @@ pub fn value_wrapper(
         &available_variants,
     );
 
-    let by_path_return_value = match &ty {
+    let by_path_fn = match &ty {
         RustType::Struct(_) | RustType::Tuple(_) | RustType::List { .. } => {
-            quote! { self._self().by_path(path) }
+            quote! { 
+                pub fn by_path(
+                    &'static self,
+                    path: std::collections::VecDeque<String>,
+                ) -> &'static (dyn std::any::Any + Sync) {
+                    self._self().by_path(path) 
+                }
+            }
         }
-        _ => quote! { self._self() },
+        _ => quote! { 
+            pub fn by_path(
+                &'static self,
+                _path: std::collections::VecDeque<String>,
+            ) -> &'static (dyn std::any::Any + Sync) {
+                self._self() 
+            }
+        },
     };
 
     let is_copy = if context.is_copy(&node.id) {
@@ -67,12 +81,7 @@ pub fn value_wrapper(
 
             #fallback_fn
 
-            pub fn by_path(
-                &'static self,
-                path: std::collections::VecDeque<String>,
-            ) -> &'static (dyn std::any::Any + Sync) {
-                #by_path_return_value
-            }
+            #by_path_fn
         }
 
         #hackfn

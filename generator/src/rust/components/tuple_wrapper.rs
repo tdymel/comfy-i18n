@@ -42,7 +42,7 @@ pub fn tuple_wrapper(
                     .set_ty(format!("Elem{}", index).into()),
                 context.context_key().clone(),
                 context
-                    .context_variants()
+                    .available_context_variants(&ast.id)
                     .map(|it| it.to_string())
                     .collect(),
                 RustType::new(ast, context, &path),

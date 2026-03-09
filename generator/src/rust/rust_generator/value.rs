@@ -182,44 +182,47 @@ impl RustValue {
                                 path: context.context_key().clone(),
                                 variant: variant.to_string(),
                             },
-                            // TODO: Handle fields that dont exist
                             RustValue::Tuple(
                                 values
                                     .into_iter()
-                                    .map(|(_, v)| RustValue::Some(Box::new(v)))
+                                    .map(|(_, v)| {
+                                        if let RustValue::None = v {
+                                            v
+                                        } else {
+                                            RustValue::Some(Box::new(v))
+                                        }
+                                    })
                                     .collect(),
                             ),
                         ],
                     },
                     CompositeValue::List { amount: list_size } => RustValue::Struct {
                         path: context.relative_path_to_root(&ast_orig.id),
-                        fields: vec![
-                            if values.len() == 1 {
-                                let (_, value) = values.remove(0);
-                                if context.is_copy(&ast_orig.id) {
-                                    RustValue::ListRepeated {
-                                        value: Box::new(value),
-                                        amount: *list_size,
-                                    }
-                                } else {
-                                    RustValue::List(
-                                        std::iter::repeat_n(value, *list_size)
-                                            .filter(|it| !matches!(it, RustValue::None))
-                                            .collect(),
-                                        false,
-                                    )
+                        fields: vec![if values.len() == 1 {
+                            let (_, value) = values.remove(0);
+                            if context.is_copy(&ast_orig.id) {
+                                RustValue::ListRepeated {
+                                    value: Box::new(value),
+                                    amount: *list_size,
                                 }
                             } else {
                                 RustValue::List(
-                                    values
-                                        .into_iter()
-                                        .map(|(_, v)| v)
+                                    std::iter::repeat_n(value, *list_size)
                                         .filter(|it| !matches!(it, RustValue::None))
                                         .collect(),
-                                    context.is_copy(&ast_orig.id),
+                                    false,
                                 )
-                            },
-                        ],
+                            }
+                        } else {
+                            RustValue::List(
+                                values
+                                    .into_iter()
+                                    .map(|(_, v)| v)
+                                    .filter(|it| !matches!(it, RustValue::None))
+                                    .collect(),
+                                context.is_copy(&ast_orig.id),
+                            )
+                        }],
                     },
                 }
             }
