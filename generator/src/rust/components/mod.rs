@@ -1,6 +1,7 @@
 mod array_wrapper;
 mod fallback_fn;
 mod format;
+mod function_field;
 mod hackfn;
 mod implementation;
 mod initialization;
@@ -12,6 +13,7 @@ mod value_wrapper;
 pub use array_wrapper::array_wrapper;
 pub use fallback_fn::fallback_fn;
 pub use format::{Format, to_fmt_args};
+pub use function_field::function_field;
 pub use hackfn::hackfn;
 pub use implementation::Implementation;
 pub use initialization::Initialization;

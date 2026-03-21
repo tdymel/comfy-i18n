@@ -8,7 +8,7 @@ use dfmt::{AlternateForm, PadZero, Sign};
 use proc_macro2::Span;
 use quote::ToTokens;
 use syn::{
-    Error, Expr,
+    Error, Expr, ReturnType,
     parse::{Parse, ParseStream},
 };
 
@@ -19,6 +19,33 @@ pub struct Literal(pub NodeValue<SpannedAst<Span>>);
 impl Parse for Literal {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         match input.parse::<Expr>()? {
+            Expr::Closure(syn::ExprClosure {
+                body,
+                output,
+                inputs,
+                ..
+            }) => {
+                let ret_ty = if let ReturnType::Type(_, ty) = output {
+                    ty.to_token_stream().to_string()
+                } else {
+                    // TODO: Better error handling
+                    panic!("Expected return type")
+                };
+
+                Ok(Literal(NodeValue::Literal(LiteralValue::Function {
+                    args: inputs
+                        .iter()
+                        .map(|it| it.to_token_stream().to_string().replace(" ", ""))
+                        .filter(|it| it != "&self")
+                        .map(|it| {
+                            let parts = it.split(":").collect::<Vec<_>>();
+                            (parts[0].to_string(), parts[1].to_string())
+                        })
+                        .collect(),
+                    ret_ty,
+                    body: body.to_token_stream().to_string(),
+                })))
+            }
             Expr::Lit(syn::ExprLit { lit, .. }) => match lit {
                 syn::Lit::Int(lit_int) => Ok(Literal(NodeValue::Literal(LiteralValue::Integer(
                     match lit_int.suffix() {

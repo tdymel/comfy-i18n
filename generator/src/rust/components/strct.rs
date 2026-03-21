@@ -52,17 +52,18 @@ pub fn strct(
         .values()
         .map(|ast| {
             let name = NameSnakeCase::from(ast.identifier.clone());
-            let is_template = matches!(
+            let is_fn_like = matches!(
                 ast.value,
                 NodeValue::Literal(LiteralValue::String(StringValue::Template(..)))
+                    | NodeValue::Literal(LiteralValue::Function { .. })
             );
             let mut fn_name = None;
-            if is_template {
+            if is_fn_like {
                 fn_name = Some(name.clone().concat("value".into()));
             }
 
             fallback_fn(
-                !is_template,
+                !is_fn_like,
                 &name,
                 fn_name,
                 &RustType::new(ast, context, &path),
@@ -93,7 +94,9 @@ pub fn strct(
         .iter()
         .map(|field| {
             match &field.ty {
-                RustType::Format(..) => format!("\"{0}\" => self.{0}_value()", field.name),
+                RustType::Format(..) | RustType::Function(..) => {
+                    format!("\"{0}\" => self.{0}_value()", field.name)
+                }
                 RustType::Struct(..) | RustType::Tuple(_) | RustType::List { .. } => {
                     format!("\"{0}\" => self.{0}().by_path(path)", field.name)
                 }

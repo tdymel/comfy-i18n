@@ -22,6 +22,7 @@ pub enum RustType {
     Struct(Path),
     Other(Path),
     Cast(proc_macro2::TokenStream),
+    Function(Path),
 }
 
 impl ToTokens for RustType {
@@ -50,6 +51,7 @@ impl ToTokens for RustType {
                 _ => unreachable!(),
             },
             RustType::Format(path, ..)
+            | RustType::Function(path)
             | RustType::Tuple(path)
             | RustType::List(path)
             | RustType::Struct(path)
@@ -78,17 +80,6 @@ impl RustType {
                         .relative_path_to_root(&node.id)
                         .relative_to(relative_root),
                 ),
-                // CompositeValue::List { amount: list_size } => {
-                //     let ty = Self::new(
-                //         children.get(&Identifier::ArrayIndex(0)).unwrap(),
-                //         context,
-                //         relative_root,
-                //     );
-                //     RustType::List {
-                //         ty: Box::new(ty),
-                //         amount: Some(*list_size),
-                //     }
-                // }
             },
             NodeValue::Literal(literal_value) => match literal_value {
                 LiteralValue::String(string_value) => match string_value {
@@ -97,7 +88,7 @@ impl RustType {
                         context
                             .relative_path_to_root(&node.id)
                             .relative_to(relative_root),
-                        template.clone()
+                        template.clone(),
                     ),
                 },
                 LiteralValue::Char(_) => RustType::Char,
@@ -150,6 +141,11 @@ impl RustType {
                 },
                 LiteralValue::Bool(_) => RustType::Bool,
                 LiteralValue::Cast { ty, .. } => RustType::Cast(ty.to_basic_token_stream()),
+                LiteralValue::Function { .. } => RustType::Function(
+                    context
+                        .relative_path_to_root(&node.id)
+                        .relative_to(relative_root),
+                ),
             },
         }
     }

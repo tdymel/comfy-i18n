@@ -16,7 +16,15 @@ pub enum LiteralValue {
     Float(FloatValue),
     Integer(IntegerValue),
     Bool(bool),
-    Cast { expression: String, ty: String },
+    Cast {
+        expression: String,
+        ty: String,
+    },
+    Function {
+        args: Vec<(String, String)>,
+        ret_ty: String,
+        body: String,
+    },
 }
 
 #[derive(Debug, Clone)]

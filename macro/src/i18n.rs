@@ -1,10 +1,10 @@
 use std::io::Read;
 
-use comfy_i18n_ast::{
-    Ast, CompositeValue, Identifier, LiteralValue, NodeValue, StringValue,
-};
+use comfy_i18n_ast::{Ast, CompositeValue, Identifier, LiteralValue, NodeValue, StringValue};
 use comfy_i18n_generator::{
-    components::{Format, Implementation, Initialization, array_wrapper, strct, tuple_wrapper},
+    components::{
+        Format, Implementation, Initialization, array_wrapper, function_field, strct, tuple_wrapper,
+    },
     rust_generator::{Context, Path, RustGenerator, RustValue},
     shared::{NameSnakeCase, ToBasicTokenStream},
 };
@@ -157,6 +157,7 @@ impl ToTokens for I18n {
                     &node.value,
                     NodeValue::Composite { .. }
                         | NodeValue::Literal(LiteralValue::String(StringValue::Template(_)))
+                        | NodeValue::Literal(LiteralValue::Function { .. })
                 )
             })
             .filter(|node| {
@@ -203,6 +204,9 @@ impl ToTokens for I18n {
                             ),
                         ),
                     );
+                }
+                NodeValue::Literal(LiteralValue::Function { .. }) => {
+                    generator.add_content(path, function_field(node, &self.context))
                 }
                 _ => unreachable!(),
             }

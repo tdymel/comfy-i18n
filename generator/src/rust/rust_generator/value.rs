@@ -248,6 +248,13 @@ impl RustValue {
                     LiteralValue::Cast { expression, .. } => {
                         RustValue::Cast(expression.to_basic_token_stream())
                     }
+                    LiteralValue::Function { .. } => RustValue::Struct {
+                        path: context.relative_path_to_root(&ast_orig.id),
+                        fields: vec![RustValue::ContextVariant {
+                            path: context.context_key().clone(),
+                            variant: variant.to_string(),
+                        }],
+                    },
                 },
                 NodeValue::Composite { .. } => unreachable!(),
             },

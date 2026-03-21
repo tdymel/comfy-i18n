@@ -15,7 +15,7 @@ pub fn fallback_fn(
     access_path: proc_macro2::TokenStream,
     access_suffix: proc_macro2::TokenStream,
     available_context_variants: &[String],
-    convert_format_fn: bool
+    convert_format_fn: bool,
 ) -> proc_macro2::TokenStream {
     let contexts = available_context_variants
         .iter()
@@ -33,7 +33,7 @@ pub fn fallback_fn(
         quote! {}
     };
 
-    let mut fmt_args = quote! {}; 
+    let mut fmt_args = quote! {};
     let mut access_suffix = access_suffix;
     let mut return_ty = quote! { &'static #ty };
     if convert_format_fn && let RustType::Format(_, template) = ty {

@@ -35,12 +35,8 @@ pub fn value_wrapper(
         name,
         &"_self".into(),
         // Not clean at all, but it works
-        &fmt_args.clone()
-            .map(|it| it.1)
-            .unwrap_or_else(Vec::new),
-        &fmt_args
-            .map(|it| it.0)
-            .unwrap_or_else(Vec::new),
+        &fmt_args.clone().map(|it| it.1).unwrap_or_else(Vec::new),
+        &fmt_args.map(|it| it.0).unwrap_or_else(Vec::new),
         quote! { #hackfn_ty},
     );
 

@@ -99,12 +99,7 @@ impl NameSnakeCase {
 
 impl From<String> for NameSnakeCase {
     fn from(value: String) -> Self {
-        if !value.contains("_")
-            && value
-                .chars()
-                .next()
-                .is_some_and(|c| c.is_ascii_uppercase())
-        {
+        if !value.contains("_") && value.chars().next().is_some_and(|c| c.is_ascii_uppercase()) {
             return NamePascalCase::from(value).to_snake_case();
         }
         Self(value.to_lowercase())
