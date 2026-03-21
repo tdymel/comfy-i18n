@@ -82,7 +82,7 @@ i18n!(
 fn some_component() {
     // Set the current global context within the application 
     // By default the next best context is chosen (fallback > first)
-    Language::DE.as_current_context();
+    I18n::DE.as_current_context();
 
     assert_eq!(
         I18n::EN.some_component().fmt_like_syntax(&83)
@@ -158,7 +158,7 @@ Source files are watched for changes during development and hot reloaded if chan
 ### 🚧 [#2](https://github.com/tdymel/comfy-i18n/issues/2): Remote source files support
 Load source files from a remote source on the fly. During compilation these source files are loaded to create the specification for the structure.
 
-### 🚧 [#2](https://github.com/tdymel/comfy-i18n/issues/2): No-std support
+### 🚧 [#8](https://github.com/tdymel/comfy-i18n/issues/8): No-std support
 This library already largely supports no-std environments. However, this will not be a hard requirement for the releases until all core features have been implemented.
 
 ## License
