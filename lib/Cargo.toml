@@ -21,6 +21,8 @@ license = "MIT OR Apache-2.0"
 dfmt = "0.4.1"
 small_ctor = "0.1.2"
 comfy-i18n-macro = { path = "../macro", version = "0.3" }
+log = "0.4"
 
 [dev-dependencies]
 rust-i18n = "3"
+simple_logger = "5"

@@ -25,13 +25,12 @@ impl Parse for I18n {
         let cargo_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is empty");
         let current_dir = std::path::PathBuf::from(cargo_dir);
 
-        let mut localizations = Vec::new();
+        let mut spanned_asts = Vec::new();
         for ast_res in input
             .parse::<proc_macro2::TokenStream>()?
             .parse_fields()
             .map_err(|err| input.error(err.to_string()))?
             .into_iter()
-            .map(Ast::from)
             .map(|ast| {
                 if let NodeValue::Literal(LiteralValue::String(StringValue::Literal(path))) =
                     &ast.value
@@ -49,20 +48,21 @@ impl Parse for I18n {
                     let ts_contents = contents.to_basic_token_stream();
                     let id = ast.identifier.to_string().to_basic_token_stream();
 
-                    return Ok(Ast::from(
-                        quote! { #id: { #ts_contents }}
-                            .parse_field()
-                            .map_err(|err| input.error(err.to_string()))?,
-                    ));
+                    return quote! { #id: { #ts_contents }}
+                        .parse_field()
+                        .map_err(|err| input.error(err.to_string()));
                 }
 
                 Ok(ast)
             })
         {
-            localizations.push(ast_res?);
+            spanned_asts.push(ast_res?);
         }
 
-        let context = Context::new(localizations, name.to_string().into());
+        let context = Context::new(
+            spanned_asts.into_iter().map(Ast::from).collect(),
+            name.to_string().into(),
+        );
 
         Ok(Self { name, context })
     }

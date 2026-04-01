@@ -52,7 +52,7 @@ i18n!(
             // You can also use any constant, as long as you hint the type
             favorite_animal: I18n::DE.animals().cat().one() as &'static str,
         },
-        arbitary_nesting: (1, (2, [{a: 42}; 5])),
+        arbitrary_nesting: (1, (2, [{a: 42}; 5])),
         // 🚧 More utility functions and ICU support will be added in the future
         complicated_localization: |&self, amount: usize| -> String {
             let cat = self.context().animals().cat();
@@ -146,7 +146,11 @@ For formatted strings [dfmt](https://github.com/tdymel/dfmt) is used under the h
 | Interpolation 7 args (f64 only) + dynamic args             | **412.05 ns**         | 449.03 ns        |
 | Interpolation 7 args (f64 only) + dynamic args + specifier | **412.40 ns**         | 1,084.64 ns      |
 
-### 🚧 [#16](https://github.com/tdymel/comfy-i18n/issues/16): Compile time validation
+### Validation
+#### Missing localization logging
+>comfy-i18n: EN.test.some_value does not exist!
+
+#### 🚧 [#16](https://github.com/tdymel/comfy-i18n/issues/16): Compile time validation
 Be warned if there are missing translations. Warnings during development and errors during production builds.
 
 ### 🚧 [#5](https://github.com/tdymel/comfy-i18n/issues/5): Different source file formats

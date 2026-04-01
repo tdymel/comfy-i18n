@@ -33,6 +33,12 @@ pub fn fallback_fn(
         quote! {}
     };
 
+    let fully_qualified_path = format!(
+        "{}.{}",
+        access_path.to_string().replace("(", "").replace(")", ""),
+        field_name
+    );
+
     let mut fmt_args = quote! {};
     let mut access_suffix = access_suffix;
     let mut return_ty = quote! { &'static #ty };
@@ -49,6 +55,11 @@ pub fn fallback_fn(
             #(#contexts)*
             if contexts.contains(&Some(self.context)) {
                 return self.#access_suffix;
+            }
+
+            let fallback_context = self.context.fallback(contexts);
+            if fallback_context != self.context {
+                comfy_i18n::macro_use::warn!("comfy-i18n: {:#?}.{} does not exist", self.context, #fully_qualified_path);
             }
 
             self.context.fallback(contexts).#access_path.#access_suffix
