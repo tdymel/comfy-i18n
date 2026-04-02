@@ -160,7 +160,7 @@ dependencies = [
 
 [[package]]
 name = "comfy-i18n"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "comfy-i18n-macro",
  "dfmt",
@@ -180,7 +180,7 @@ dependencies = [
 
 [[package]]
 name = "comfy-i18n-generator"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "comfy-i18n-ast",
  "dfmt",
@@ -191,7 +191,7 @@ dependencies = [
 
 [[package]]
 name = "comfy-i18n-macro"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "comfy-i18n-ast",
  "comfy-i18n-generator",
